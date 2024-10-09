@@ -111,12 +111,13 @@ fun SignUpScreen(modifier: Modifier = Modifier) {
             placeholder = {
                 Text(
                 text = "wavve@example.com",
-                color = Color.Gray
+                color = Color.White
                 ) },
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.DarkGray,
                 unfocusedContainerColor = Color.DarkGray,
-                focusedTextColor = Color.Gray,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent
             ),
@@ -145,13 +146,14 @@ fun SignUpScreen(modifier: Modifier = Modifier) {
             placeholder = {
                 Text(
                     text = "wavve 비밀번호 설정",
-                    color = Color.Gray
+                    color = Color.White
                 )
             },
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.DarkGray,
                 unfocusedContainerColor = Color.DarkGray,
-                focusedTextColor = Color.Gray,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent
             ),
