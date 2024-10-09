@@ -13,6 +13,11 @@
         android:theme="@style/Theme.ANDANDROID"
         tools:targetApi="31">
         <activity
+            android:name=".MyActivity"
+            android:exported="false"
+            android:label="@string/title_activity_my"
+            android:theme="@style/Theme.ANDANDROID" />
+        <activity
             android:name=".SignUpActivity"
             android:exported="false"
             android:label="@string/title_activity_sign_up"
