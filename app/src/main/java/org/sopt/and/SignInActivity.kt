@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,155 +67,34 @@ fun SignInScreen(modifier: Modifier = Modifier) {
             .background(color = Color.Black)
             .padding(20.dp)
     ) {
-        //상단바
-        Row (modifier = Modifier
-            .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { },
-                text = "<",
-                fontSize = 40.sp,
-                color = Color.White,
-            )
-            Text( modifier = Modifier
-                .weight(1f)
-                .align(Alignment.CenterVertically),
-                fontWeight = FontWeight.Bold,
-                text = "Wavve",
-                textAlign = TextAlign.Center,
-                color = Color.White,
-                fontSize = 30.sp,
-            )
-            Spacer(modifier = Modifier.weight(1f))
-        }
+        // 상단바
+        TopBar()
 
         Spacer(modifier = Modifier.height(30.dp))
 
-        //아이디 입력 필드
-        var emailText by remember { mutableStateOf("") }
-        TextField(
-            value = emailText,
-            onValueChange = { emailText = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp),
-            placeholder = {
-                Text(
-                    text = "이메일 주소 또는 아이디",
-                    color = Color.Gray
-                ) },
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.DarkGray,
-                unfocusedContainerColor = Color.DarkGray,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            ),
-            shape = RoundedCornerShape(5.dp),
-            singleLine = true
+        // 아이디 입력 필드
+        InputField(
+            value = remember { mutableStateOf("") },
+            placeholder = "이메일 주소 또는 아이디"
         )
 
         Spacer(modifier = Modifier.height(5.dp))
 
         // 비밀번호 입력 필드
-        var passWordText by remember { mutableStateOf("") }
-        var showPassword by remember { mutableStateOf(false) } // "Show"와 "Hide"를 위한 상태 저장
-
-        TextField(
-            value = passWordText,
-            onValueChange = { passWordText = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp),
-            placeholder = {
-                Text(
-                    text = "비밀번호",
-                    color = Color.Gray
-                )
-            },
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.DarkGray,
-                unfocusedContainerColor = Color.DarkGray,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            ),
-            shape = RoundedCornerShape(5.dp),
-            visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(), // 비밀번호 보임 여부 결정
-            trailingIcon = {
-                Text(
-                    text = if (showPassword) "Hide" else "Show", // 상태에 따라 텍스트 변경
-                    color = Color.White,
-                    modifier = Modifier.clickable {
-                        showPassword = !showPassword // 클릭 시 상태 변경
-                    }
-                )
-            },
-            singleLine = true
-        )
+        PasswordField()
 
         Spacer(modifier = Modifier.height(30.dp))
 
-        //로그인 버튼
-        Button(
-            onClick = {},
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Blue,   // 버튼의 배경색
-                contentColor = Color.White     // 버튼 내부 텍스트 색상
-            )
-        ) {
-            Text(
-                text = "로그인",
-                fontSize = 15.sp
-            )
-        }
+        // 로그인 버튼
+        SignInButton(text = "로그인", onClick = {  })
 
         Spacer(modifier = Modifier.height(30.dp))
 
-        //아이디 찾기,비번 재설정,회원가입 버튼
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Spacer(modifier=Modifier)
-            Text(
-                modifier = Modifier.clickable {  },
-                text = "아이디 찾기",
-                color = Color.Gray
-            )
-            Text(
-                modifier = Modifier,
-                text = "|",
-                color = Color.Gray
-            )
-            Text(
-                modifier = Modifier.clickable {  },
-                text = "비밀번호 재설정",
-                color = Color.Gray
-            )
-            Text(
-                modifier = Modifier,
-                text = "|",
-                color = Color.Gray
-            )
-            Text(
-                modifier = Modifier.clickable {  },
-                text = "회원 가입",
-                color = Color.Gray
-            )
-            Spacer(modifier=Modifier)
-        }
+        // 아이디 찾기, 비번 재설정, 회원가입 버튼
+        ActionLinks()
 
-        Spacer(modifier = Modifier.height(60.dp))
+        Spacer(modifier = Modifier.height(55.dp))
+
         Text(
             text = "또는 다른 서비스 계정으로 가입",
             color = Color.White,
@@ -222,65 +102,167 @@ fun SignInScreen(modifier: Modifier = Modifier) {
             textAlign = TextAlign.Center
         )
 
-        //SNS 버튼
+        // SNS 버튼들
         Spacer(modifier = Modifier.height(20.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Button(
-                onClick = {},
-                shape = CircleShape,
-                modifier = Modifier
-                    .padding(5.dp)
-                    .size(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Yellow)
-            ) { }
-            Button(
-                onClick = {},
-                shape = CircleShape,
-                modifier = Modifier
-                    .padding(5.dp)
-                    .size(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
-            ) { }
-            Button(
-                onClick = {},
-                shape = CircleShape,
-                modifier = Modifier
-                    .padding(5.dp)
-                    .size(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
-            ) { }
-            Button(
-                onClick = {},
-                shape = CircleShape,
-                modifier = Modifier
-                    .padding(5.dp)
-                    .size(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF113065))
-            ) { }
-            Button(
-                onClick = {},
-                shape = CircleShape,
-                modifier = Modifier
-                    .padding(5.dp)
-                    .size(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
-            ) { }
-        }
+        SNSButtons()
 
         Spacer(modifier = Modifier.height(15.dp))
 
-        //주의사항 텍스트
+        // 주의사항 텍스트
         Text(
             text = "• SNS계정으로 간편하게 가입하여 서비스를 이용하실 수 있습니다. 기존 POOQ 계정 또는 Wavve 계정과는 연동되지 않으니 이용에 참고하세요.",
             color = Color.Gray,
         )
-
-
     }
+}
 
+// 상단바 컴포넌트화
+@Composable
+fun TopBar() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            modifier = Modifier
+                .weight(1f)
+                .clickable { },
+            text = "<",
+            fontSize = 40.sp,
+            color = Color.White,
+        )
+        Text(
+            modifier = Modifier
+                .weight(1f)
+                .align(Alignment.CenterVertically),
+            fontWeight = FontWeight.Bold,
+            text = "Wavve",
+            textAlign = TextAlign.Center,
+            color = Color.White,
+            fontSize = 30.sp,
+        )
+        Spacer(modifier = Modifier.weight(1f))
+    }
+}
+
+// 아이디 및 비밀번호 입력 필드 컴포넌트화
+@Composable
+fun InputField(value: MutableState<String>, placeholder: String) {
+    TextField(
+        value = value.value,
+        onValueChange = { value.value = it },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(60.dp),
+        placeholder = { Text(text = placeholder, color = Color.Gray) },
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color.DarkGray,
+            unfocusedContainerColor = Color.DarkGray,
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+        ),
+        shape = RoundedCornerShape(5.dp),
+        singleLine = true
+    )
+}
+
+// 비밀번호 입력 필드 컴포넌트화
+@Composable
+fun PasswordField() {
+    var passWordText by remember { mutableStateOf("") }
+    var showPassword by remember { mutableStateOf(false) }
+
+    TextField(
+        value = passWordText,
+        onValueChange = { passWordText = it },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(60.dp),
+        placeholder = { Text(text = "비밀번호", color = Color.Gray) },
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color.DarkGray,
+            unfocusedContainerColor = Color.DarkGray,
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+        ),
+        shape = RoundedCornerShape(5.dp),
+        visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+        trailingIcon = {
+            Text(
+                text = if (showPassword) "Hide" else "Show",
+                color = Color.White,
+                modifier = Modifier.clickable { showPassword = !showPassword }
+            )
+        },
+        singleLine = true
+    )
+}
+
+// 로그인 버튼
+@Composable
+fun SignInButton(text: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Blue,
+            contentColor = Color.White
+        )
+    ) {
+        Text(text = text, fontSize = 15.sp)
+    }
+}
+
+// 아이디 찾기, 비번 재설정, 회원가입 컴포넌트화
+@Composable
+fun ActionLinks() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        ActionText(text = "아이디 찾기", onClick = { })
+        Text(text = "|", color = Color.Gray)
+        ActionText(text = "비밀번호 재설정", onClick = {  })
+        Text(text = "|", color = Color.Gray)
+        ActionText(text = "회원 가입", onClick = { })
+    }
+}
+
+@Composable
+fun ActionText(text: String, onClick: () -> Unit) {
+    Text(
+        text = text,
+        color = Color.Gray,
+        modifier = Modifier.clickable(onClick = onClick)
+    )
+}
+
+// SNS 버튼들을 컴포넌트화
+@Composable
+fun SNSButtons() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        val snsColors = listOf(Color.Yellow, Color.Blue, Color.Green, Color(0xFF113065), Color.White)
+        snsColors.forEach { color ->
+            Button(
+                onClick = {},
+                shape = CircleShape,
+                modifier = Modifier
+                    .padding(5.dp)
+                    .size(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = color)
+            ) { }
+        }
+    }
 }
 
 @Preview(showBackground = true)
