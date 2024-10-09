@@ -123,7 +123,7 @@ fun SignUpScreen(modifier: Modifier = Modifier) {
         //아이디 주의사항 텍스트
         Text(
             text = "! 로그인, 비밀번호 찾기, 알림에 사용되니 정확한 이메일을\n입력해 주세요.",
-            color = Color.White,
+            color = Color.Gray,
         )
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -170,13 +170,13 @@ fun SignUpScreen(modifier: Modifier = Modifier) {
         //아이디 주의사항 텍스트
         Text(
             text = "! 비밀번호는 8-20자 이내, 영문 대소문자, 숫자, 특수문자 중\n 3가지 이상 혼용하여 입력해 주세요.",
-            color = Color.White,
+            color = Color.Gray,
         )
 
-        Spacer(modifier = Modifier.height(60.dp))
+        Spacer(modifier = Modifier.height(55.dp))
         Text(
             text = "또는 다른 서비스 계정으로 가입",
-            color = Color.White,
+            color = Color.Gray,
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center
         )
