@@ -105,7 +105,7 @@ fun SignUpScreen(modifier: Modifier = Modifier) {
             placeholder = {
                 Text(
                 text = "wavve@example.com",
-                color = Color.White
+                color = Color.Gray
                 ) },
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color.DarkGray,
@@ -141,7 +141,7 @@ fun SignUpScreen(modifier: Modifier = Modifier) {
             placeholder = {
                 Text(
                     text = "wavve 비밀번호 설정",
-                    color = Color.White
+                    color = Color.Gray
                 )
             },
             colors = TextFieldDefaults.colors(
