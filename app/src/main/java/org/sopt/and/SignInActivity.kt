@@ -20,8 +20,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -124,13 +128,14 @@ fun TopBar() {
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
+        Icon(
             modifier = Modifier
-                .weight(1f)
-                .clickable { },
-            text = "<",
-            fontSize = 40.sp,
-            color = Color.White,
+                .size(35.dp)
+                .clickable {  },
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+            contentDescription = "뒤로가기",
+            tint = Color.White
+
         )
         Text(
             modifier = Modifier
@@ -142,7 +147,10 @@ fun TopBar() {
             color = Color.White,
             fontSize = 30.sp,
         )
-        Spacer(modifier = Modifier.weight(1f))
+
+        Spacer(modifier = Modifier.size(35.dp))
+
+
     }
 }
 
