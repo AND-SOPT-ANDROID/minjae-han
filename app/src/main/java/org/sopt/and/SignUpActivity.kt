@@ -17,8 +17,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -68,7 +71,7 @@ fun SignUpScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Spacer(modifier = Modifier)
+                Spacer(modifier = Modifier.size(30.dp))
 
                 Text(
                     text = "회원가입",
@@ -76,14 +79,15 @@ fun SignUpScreen(modifier: Modifier = Modifier) {
                     fontSize = 20.sp,
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
-                Text(
-                    color = Color.White,
-                    text = "X",
-                    fontSize = 30.sp,
+                Icon(
                     modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .clickable { }
+                        .size(30.dp)
+                        .clickable { },
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "닫음",
+                    tint = Color.White
                 )
+
             }
 
             Spacer(modifier = Modifier.height(40.dp))
