@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Warning
@@ -74,8 +73,10 @@ fun MyPageScreen(modifier: Modifier = Modifier) {
                     modifier = Modifier
                         .size(60.dp)
                         .background(Color.Cyan, shape = CircleShape)
-                ) {}
+                    //추후 사진으로 변경 필요
+                )
                 Spacer(modifier=Modifier.width(10.dp))
+
                 Text(
                     "프로필 1님",
                     fontSize = 15.sp,
@@ -106,57 +107,73 @@ fun MyPageScreen(modifier: Modifier = Modifier) {
                 )
             }
         }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.DarkGray)
-                .padding(15.dp)
-        ) {
-            Text(
-                text = "첫 결재 시 첫 달 100원!",
-                fontSize = 18.sp,
-                color = Color.LightGray)
-            Text(
-                modifier = Modifier.clickable { },
-                text = "구매하기 >",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-        }
+
         Spacer(modifier = Modifier.height(1.dp))
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.DarkGray)
-                .padding(15.dp)
-        ) {
-            Text(
-                text = "현재 보유하신 이용권이 없습니다.",
-                fontSize = 18.sp,
-                color = Color.LightGray)
-            Text(
-                modifier = Modifier.clickable { },
-                text = "구매하기 >",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-        }
+        PurchaseText("첫 결재 시 첫 달 100원!", onClick = { })
 
-        Text(
-            modifier = Modifier.padding(15.dp),
-            text = "전체 시청내역",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-        )
+        Spacer(modifier = Modifier.height(1.dp))
+
+        PurchaseText("현재 보유하신 이용권이 없습니다.", onClick = { })
+
+        MyMenuSection("전체 시청내역")
+
         Spacer(modifier = Modifier.height(30.dp))
+
+        EmptyInfoIcon("시청 내역이 없어요.")
+
+        MyMenuSection("관심 프로그램")
+
+        Spacer(modifier = Modifier.height(30.dp))
+
+        EmptyInfoIcon("관심 프로그램이 없어요.")
+    }
+}
+
+@Composable
+fun PurchaseText(title: String, onClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.DarkGray)
+            .padding(15.dp)
+    ) {
+        Text(
+            text = title,
+            fontSize = 18.sp,
+            color = Color.LightGray
+        )
+        Text(
+            modifier = Modifier.clickable(onClick = onClick),
+            text = "구매하기 >",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+    }
+}
+
+
+@Composable
+fun MyMenuSection(text : String){
+    Text(
+        modifier = Modifier.padding(15.dp),
+        text = text,
+        fontSize = 20.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color.White,
+    )
+}
+
+@Composable
+fun EmptyInfoIcon(message : String ){
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Icon(
             modifier = Modifier
                 .size(80.dp)
-                .align(Alignment.CenterHorizontally)
                 .clickable { },
             imageVector = Icons.Outlined.Warning,
             contentDescription = "알림",
@@ -164,32 +181,8 @@ fun MyPageScreen(modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.height(15.dp))
         Text(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            text = "시청 내역이 없어요.",
-            color = Color.Gray
-        )
-
-        Text(
-            modifier = Modifier.padding(15.dp),
-            text = "관심 프로그램",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-        )
-        Spacer(modifier = Modifier.height(30.dp))
-        Icon(
-            modifier = Modifier
-                .size(80.dp)
-                .align(Alignment.CenterHorizontally)
-                .clickable { },
-            imageVector = Icons.Outlined.Warning,
-            contentDescription = "알림",
-            tint = Color.Gray
-        )
-        Spacer(modifier = Modifier.height(15.dp))
-        Text(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            text = "관심 프로그램이 없어요.",
+            modifier = Modifier,
+            text = message,
             color = Color.Gray
         )
     }
