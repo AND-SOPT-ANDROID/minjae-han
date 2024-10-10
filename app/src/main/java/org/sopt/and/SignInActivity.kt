@@ -237,7 +237,7 @@ fun ActionLinks() {
     ) {
         ActionText(text = "아이디 찾기", onClick = { })
         Text(text = "|", color = Color.Gray)
-        ActionText(text = "비밀번호 재설정", onClick = {  })
+        ActionText(text = "비밀번호 재설정", onClick = { })
         Text(text = "|", color = Color.Gray)
         ActionText(text = "회원 가입", onClick = { })
     }
@@ -252,7 +252,7 @@ fun ActionText(text: String, onClick: () -> Unit) {
     )
 }
 
-// SNS 버튼들을 컴포넌트화
+// SNS 버튼 컴포넌트화
 @Composable
 fun SNSButtons() {
     Row(
