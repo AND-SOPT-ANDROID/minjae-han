@@ -1,45 +1,25 @@
 package org.sopt.and
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
-import android.widget.Space
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.ColorRes
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -47,16 +27,61 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import org.sopt.and.ui.theme.ANDANDROIDTheme
 
+
 class SignInActivity : ComponentActivity() {
+    private var registeredEmail: String? = null
+    private var registeredPassword: String? = null
+
+    private val signUpResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                result.data?.let { intent ->
+                    registeredEmail = intent.getStringExtra("email")
+                    registeredPassword = intent.getStringExtra("password")
+                }
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             ANDANDROIDTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                SignInScreen(modifier = Modifier.padding(innerPadding))
+                val snackbarHostState = remember { SnackbarHostState() }
+                val scope = rememberCoroutineScope()
+
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    snackbarHost = { SnackbarHost(snackbarHostState) }
+                ) { innerPadding ->
+                    SignInScreen(
+                        modifier = Modifier.padding(innerPadding),
+                        onSignUpClick = {
+                            val intent = Intent(this, SignUpActivity::class.java)
+                            signUpResultLauncher.launch(intent)
+                        },
+                        onSignInAttempt = { email, password ->
+                            if (email == registeredEmail && password == registeredPassword) {
+                                // 로그인 성공 시 MyActivity로 이메일을 전달하며 화면 전환
+                                val myActivityIntent = Intent(this, MyActivity::class.java).apply {
+                                    putExtra("email", registeredEmail) // 이메일 전달
+                                }
+                                startActivity(myActivityIntent)
+                                // 로그인 성공 Snackbar 표시
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("로그인 성공!")
+                                }
+                            } else {
+                                // 로그인 실패 Snackbar 표시
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("로그인 실패. 정보를 확인해주세요.")
+                                }
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -64,7 +89,15 @@ class SignInActivity : ComponentActivity() {
 }
 
 @Composable
-fun SignInScreen(modifier: Modifier = Modifier) {
+fun SignInScreen(
+    modifier: Modifier = Modifier,
+    onSignUpClick: () -> Unit,
+    onSignInAttempt: (String, String) -> Unit
+) {
+    var emailText by remember { mutableStateOf("") }
+    var passwordText by remember { mutableStateOf("") }
+    var showPassword by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -78,24 +111,30 @@ fun SignInScreen(modifier: Modifier = Modifier) {
 
         // 아이디 입력 필드
         InputField(
-            value = remember { mutableStateOf("") },
-            placeholder = "이메일 주소 또는 아이디"
+            value = remember { mutableStateOf(emailText) },
+            placeholder = "이메일 주소 또는 아이디",
+            onValueChange = { emailText = it }
         )
 
         Spacer(modifier = Modifier.height(5.dp))
 
         // 비밀번호 입력 필드
-        PasswordField()
+        PasswordField(
+            value = passwordText,
+            onValueChange = { passwordText = it },
+            showPassword = showPassword,
+            onVisibilityChange = { showPassword = !showPassword }
+        )
 
         Spacer(modifier = Modifier.height(30.dp))
 
         // 로그인 버튼
-        SignInButton(text = "로그인", onClick = {  })
+        SignInButton(text = "로그인", onClick = { onSignInAttempt(emailText, passwordText) })
 
         Spacer(modifier = Modifier.height(30.dp))
 
         // 아이디 찾기, 비번 재설정, 회원가입 버튼
-        ActionLinks()
+        ActionLinks(onSignUpClick = onSignUpClick)
 
         Spacer(modifier = Modifier.height(55.dp))
 
@@ -108,6 +147,7 @@ fun SignInScreen(modifier: Modifier = Modifier) {
 
         // SNS 버튼들
         Spacer(modifier = Modifier.height(20.dp))
+
         SNSButtons()
 
         Spacer(modifier = Modifier.height(15.dp))
@@ -120,7 +160,6 @@ fun SignInScreen(modifier: Modifier = Modifier) {
     }
 }
 
-// 상단바 컴포넌트화
 @Composable
 fun TopBar() {
     Row(
@@ -135,7 +174,6 @@ fun TopBar() {
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
             contentDescription = "뒤로가기",
             tint = Color.White
-
         )
         Text(
             modifier = Modifier
@@ -149,17 +187,14 @@ fun TopBar() {
         )
 
         Spacer(modifier = Modifier.size(35.dp))
-
-
     }
 }
 
-// 아이디 및 비밀번호 입력 필드 컴포넌트화
 @Composable
-fun InputField(value: MutableState<String>, placeholder: String) {
+fun InputField(value: MutableState<String>, placeholder: String, onValueChange: (String) -> Unit) {
     TextField(
         value = value.value,
-        onValueChange = { value.value = it },
+        onValueChange = { newText -> value.value = newText; onValueChange(newText) },
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp),
@@ -177,15 +212,16 @@ fun InputField(value: MutableState<String>, placeholder: String) {
     )
 }
 
-// 비밀번호 입력 필드 컴포넌트화
 @Composable
-fun PasswordField() {
-    var passWordText by remember { mutableStateOf("") }
-    var showPassword by remember { mutableStateOf(false) }
-
+fun PasswordField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    showPassword: Boolean,
+    onVisibilityChange: () -> Unit
+) {
     TextField(
-        value = passWordText,
-        onValueChange = { passWordText = it },
+        value = value,
+        onValueChange = onValueChange,
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp),
@@ -204,14 +240,13 @@ fun PasswordField() {
             Text(
                 text = if (showPassword) "Hide" else "Show",
                 color = Color.White,
-                modifier = Modifier.clickable { showPassword = !showPassword }
+                modifier = Modifier.clickable { onVisibilityChange() }
             )
         },
         singleLine = true
     )
 }
 
-// 로그인 버튼
 @Composable
 fun SignInButton(text: String, onClick: () -> Unit) {
     Button(
@@ -228,9 +263,8 @@ fun SignInButton(text: String, onClick: () -> Unit) {
     }
 }
 
-// 아이디 찾기, 비번 재설정, 회원가입 컴포넌트화
 @Composable
-fun ActionLinks() {
+fun ActionLinks(onSignUpClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
@@ -239,7 +273,7 @@ fun ActionLinks() {
         Text(text = "|", color = Color.Gray)
         ActionText(text = "비밀번호 재설정", onClick = { })
         Text(text = "|", color = Color.Gray)
-        ActionText(text = "회원 가입", onClick = { })
+        ActionText(text = "회원 가입", onClick = onSignUpClick)
     }
 }
 
@@ -252,7 +286,6 @@ fun ActionText(text: String, onClick: () -> Unit) {
     )
 }
 
-// SNS 버튼 컴포넌트화
 @Composable
 fun SNSButtons() {
     Row(
@@ -273,8 +306,13 @@ fun SNSButtons() {
     }
 }
 
+fun showSnackbar(context: ComponentActivity, message: String) {
+    // Snackbar 메시지 표시를 위한 메서드
+    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+}
+
 @Preview(showBackground = true)
 @Composable
-fun SignInScreenPreview(){
-    SignInScreen()
+fun SignInScreenPreview() {
+    SignInScreen(onSignUpClick = {}, onSignInAttempt = { _, _ -> })
 }
