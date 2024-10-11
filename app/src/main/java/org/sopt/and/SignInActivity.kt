@@ -306,10 +306,6 @@ fun SNSButtons() {
     }
 }
 
-fun showSnackbar(context: ComponentActivity, message: String) {
-    // Snackbar 메시지 표시를 위한 메서드
-    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-}
 
 @Preview(showBackground = true)
 @Composable
