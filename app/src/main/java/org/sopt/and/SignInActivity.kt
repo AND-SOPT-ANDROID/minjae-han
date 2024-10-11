@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.sopt.and.ui.theme.ANDANDROIDTheme
-
+import kotlinx.coroutines.delay
 
 class SignInActivity : ComponentActivity() {
     private var registeredEmail: String? = null
@@ -65,14 +65,16 @@ class SignInActivity : ComponentActivity() {
                         },
                         onSignInAttempt = { email, password ->
                             if (email == registeredEmail && password == registeredPassword) {
-                                // 로그인 성공 시 MyActivity로 이메일을 전달하며 화면 전환
-                                val myActivityIntent = Intent(this, MyActivity::class.java).apply {
-                                    putExtra("email", registeredEmail) // 이메일 전달
-                                }
-                                startActivity(myActivityIntent)
-                                // 로그인 성공 Snackbar 표시
+                                // 로그인 성공 Snackbar 표시 후 잠시 대기
                                 scope.launch {
                                     snackbarHostState.showSnackbar("로그인 성공!")
+                                    delay(500)
+
+                                    // 딜레이 후 MyActivity로 이동
+                                    val myActivityIntent = Intent(this@SignInActivity, MyActivity::class.java).apply {
+                                        putExtra("email", registeredEmail) // 이메일 전달
+                                    }
+                                    startActivity(myActivityIntent)
                                 }
                             } else {
                                 // 로그인 실패 Snackbar 표시
