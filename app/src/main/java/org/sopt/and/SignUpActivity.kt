@@ -1,40 +1,27 @@
 package org.sopt.and
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.util.Patterns
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -42,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.sopt.and.ui.theme.ANDANDROIDTheme
+import java.util.regex.Pattern
 
 class SignUpActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,14 +47,17 @@ class SignUpActivity : ComponentActivity() {
 
 @Composable
 fun SignUpScreen(modifier: Modifier = Modifier) {
-    Column (
+    var emailText by remember { mutableStateOf("") }
+    var passwordText by remember { mutableStateOf("") }
+    val context = LocalContext.current
+
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color.Black),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Column (modifier = Modifier.padding(20.dp)) {
-            // 상단 라인
+        Column(modifier = Modifier.padding(20.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -90,6 +81,7 @@ fun SignUpScreen(modifier: Modifier = Modifier) {
             }
 
             Spacer(modifier = Modifier.height(40.dp))
+
             // 안내 텍스트 문구
             Text(
                 text = "이메일과 비밀번호 만으로\nWavve를 즐길 수 있어요!",
@@ -100,14 +92,13 @@ fun SignUpScreen(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(40.dp))
 
             // 아이디 입력 필드
-            var emailText by remember { mutableStateOf("") }
             EmailInputField(
                 value = emailText,
                 onValueChange = { emailText = it }
             )
 
             Spacer(modifier = Modifier.height(10.dp))
-            // 아이디 주의사항 텍스트
+
             Text(
                 text = "! 로그인, 비밀번호 찾기, 알림에 사용되니 정확한 이메일을\n입력해 주세요.",
                 color = Color.Gray,
@@ -116,7 +107,6 @@ fun SignUpScreen(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(20.dp))
 
             // 비밀번호 입력 필드
-            var passwordText by remember { mutableStateOf("") }
             var showPassword by remember { mutableStateOf(false) }
 
             PasswordInputField(
@@ -127,13 +117,14 @@ fun SignUpScreen(modifier: Modifier = Modifier) {
             )
 
             Spacer(modifier = Modifier.height(10.dp))
-            // 비밀번호 주의사항 텍스트
+
             Text(
                 text = "! 비밀번호는 8-20자 이내, 영문 대소문자, 숫자, 특수문자 중\n3가지 이상 혼용하여 입력해 주세요.",
                 color = Color.Gray,
             )
 
             Spacer(modifier = Modifier.height(40.dp))
+
             Text(
                 text = "또는 다른 서비스 계정으로 가입",
                 color = Color.Gray,
@@ -142,6 +133,7 @@ fun SignUpScreen(modifier: Modifier = Modifier) {
             )
 
             Spacer(modifier = Modifier.height(30.dp))
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
@@ -154,30 +146,46 @@ fun SignUpScreen(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            // 주의사항 텍스트
             Text(
                 text = "• SNS계정으로 간편하게 가입하여 서비스를 이용하실 수 있습니다. 기존 POOQ 계정 또는 Wavve 계정과는 연동되지 않으니 이용에 참고하세요.",
                 color = Color.Gray,
             )
         }
 
-        var isEnabled by remember { mutableStateOf(true) }
-
+        // 회원가입 버튼
         Button(
-            onClick = { },
+            onClick = {
+                if (isSignUpValid(emailText, passwordText)) {
+                    // 회원가입 정보 전달
+                    val resultIntent = Intent().apply {
+                        putExtra("email", emailText)
+                        putExtra("password", passwordText)
+                    }
+                    (context as Activity).setResult(Activity.RESULT_OK, resultIntent)
+                    (context as Activity).finish() // SignUpActivity 종료
+                } else {
+                    Toast.makeText(context, "유효하지 않은 이메일 또는 비밀번호입니다.", Toast.LENGTH_SHORT).show()
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(60.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (isEnabled) Color.Blue else Color.Gray,
+                containerColor = Color.Blue,
                 contentColor = Color.White
             ),
-            shape = RectangleShape,
-            enabled = isEnabled
+            shape = RectangleShape
         ) {
             Text("Wavve 회원가입", fontSize = 17.sp)
         }
     }
+}
+
+// 이메일 유효성 및 비밀번호 복잡도 검사 함수
+fun isSignUpValid(email: String, password: String): Boolean {
+    val emailPattern = Patterns.EMAIL_ADDRESS
+    val passwordPattern = Pattern.compile("^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#\$%^&*]).{8,20}$")
+    return emailPattern.matcher(email).matches() && passwordPattern.matcher(password).matches()
 }
 
 // 아이디 입력 필드 컴포넌트
@@ -249,16 +257,17 @@ fun PasswordInputField(
     )
 }
 
+// SNS 버튼 컴포넌트
 @Composable
 fun SNSButton(onClick : ()  -> Unit, color: Color) {
-        Button(
-            onClick = onClick,
-            shape = CircleShape,
-            modifier = Modifier
-                .padding(5.dp)
-                .size(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = color)
-        ) { }
+    Button(
+        onClick = onClick,
+        shape = CircleShape,
+        modifier = Modifier
+            .padding(5.dp)
+            .size(50.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = color)
+    ) { }
 }
 
 @Preview
