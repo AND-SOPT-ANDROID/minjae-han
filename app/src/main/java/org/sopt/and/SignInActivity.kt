@@ -63,12 +63,10 @@ class SignInActivity : ComponentActivity() {
                         },
                         onSignInAttempt = { email, password ->
                             if (email == registeredEmail && password == registeredPassword) {
-                                // 로그인 성공 Snackbar 표시 후 잠시 대기
                                 scope.launch {
                                     snackbarHostState.showSnackbar("로그인 성공!")
                                     delay(500)
 
-                                    // 딜레이 후 MyActivity로 이동
                                     val myActivityIntent = Intent(this@SignInActivity, MyActivity::class.java).apply {
                                         putExtra("email", registeredEmail) // 이메일 전달
                                     }
