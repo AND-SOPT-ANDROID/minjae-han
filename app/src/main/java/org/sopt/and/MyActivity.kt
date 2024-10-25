@@ -1,6 +1,5 @@
 package org.sopt.and
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,11 +12,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Warning
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import org.sopt.and.ui.theme.ANDANDROIDTheme
 
 class MyActivity : ComponentActivity() {
@@ -33,15 +30,26 @@ class MyActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ANDANDROIDTheme {
-                // Intent로 전달된 이메일 데이터 받기
                 val email = intent.getStringExtra("email") ?: "프로필 1님"
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MyPageScreen(modifier = Modifier.padding(innerPadding), email = email)
-                }
+                val navController = rememberNavController() // NavController 생성
+
+                Scaffold(
+                    bottomBar = {
+                        BottomNavBar(navController = navController) // NavController 전달
+                    },
+                    content = { innerPadding ->
+                        MyPageScreen(
+                            modifier = Modifier.padding(innerPadding),
+                            email = email
+                        )
+                    }
+                )
             }
         }
     }
 }
+
+
 
 @Composable
 fun MyPageScreen(modifier: Modifier = Modifier, email: String) {
@@ -72,7 +80,6 @@ fun MyPageScreen(modifier: Modifier = Modifier, email: String) {
                 )
                 Spacer(modifier = Modifier.width(10.dp))
 
-                // 회원가입 시 입력된 이메일 출력
                 Text(
                     text = email, // 전달된 이메일을 닉네임으로 출력
                     fontSize = 15.sp,
@@ -150,7 +157,6 @@ fun PurchaseText(title: String, onClick: () -> Unit) {
     }
 }
 
-
 @Composable
 fun MyMenuSection(text: String) {
     Text(
@@ -188,5 +194,16 @@ fun EmptyInfoIcon(message: String) {
 @Preview(showBackground = true)
 @Composable
 fun MyPageScreenPreview() {
-    MyPageScreen(email = "wavve@example.com") // 미리보기에 샘플 이메일 설정
+    val navController = rememberNavController()
+    Scaffold(
+        bottomBar = {
+            BottomNavBar(navController = navController)
+        }
+    ) { innerPadding ->
+        // innerPadding을 MyPageScreen의 Modifier에 적용
+        MyPageScreen(
+            modifier = Modifier.padding(innerPadding),
+            email = "wavve@example.com"
+        )
+    }
 }

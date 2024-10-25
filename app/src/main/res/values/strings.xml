@@ -4,4 +4,5 @@
     <string name="title_activity_sign_up">SignUpActivity</string>
     <string name="title_activity_my">MyActivity</string>
     <string name="title_activity_home">HomeActivity</string>
+    <string name="title_activity_search">SearchActivity</string>
 </resources>
