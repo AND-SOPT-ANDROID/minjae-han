@@ -68,7 +68,7 @@ fun MyPageScreen(modifier: Modifier = Modifier, email: String) {
                     modifier = Modifier
                         .size(60.dp)
                         .background(Color.Cyan, shape = CircleShape)
-                    // 추후 사진으로 변경 필요
+                    // TODO: 사진으로 변경
                 )
                 Spacer(modifier = Modifier.width(10.dp))
 

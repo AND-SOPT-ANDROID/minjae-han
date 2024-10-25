@@ -155,7 +155,7 @@ fun SignUpScreen(modifier: Modifier = Modifier) {
         // 회원가입 버튼
         Button(
             onClick = {
-                if (isSignUpValid(emailText, passwordText)) {
+                if (Validator.isSignUpValid(emailText, passwordText)) {
                     // 회원가입 정보 전달
                     val resultIntent = Intent().apply {
                         putExtra("email", emailText)
@@ -179,13 +179,6 @@ fun SignUpScreen(modifier: Modifier = Modifier) {
             Text("Wavve 회원가입", fontSize = 17.sp)
         }
     }
-}
-
-// 이메일 유효성 및 비밀번호 복잡도 검사 함수
-fun isSignUpValid(email: String, password: String): Boolean {
-    val emailPattern = Patterns.EMAIL_ADDRESS
-    val passwordPattern = Pattern.compile("^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#\$%^&*]).{8,20}$")
-    return emailPattern.matcher(email).matches() && passwordPattern.matcher(password).matches()
 }
 
 // 아이디 입력 필드 컴포넌트
@@ -269,6 +262,17 @@ fun SNSButton(onClick : ()  -> Unit, color: Color) {
         colors = ButtonDefaults.buttonColors(containerColor = color)
     ) { }
 }
+
+object Validator {
+    private val emailPattern = Patterns.EMAIL_ADDRESS
+    private val passwordPattern = Pattern.compile("^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#\$%^&*]).{8,20}$")
+
+    // 이메일 유효성 및 비밀번호 복잡도 검사 함수
+    fun isSignUpValid(email: String, password: String): Boolean {
+        return emailPattern.matcher(email).matches() && passwordPattern.matcher(password).matches()
+    }
+}
+
 
 @Preview
 @Composable

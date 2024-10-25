@@ -1,9 +1,7 @@
 package org.sopt.and
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -113,7 +111,7 @@ fun SignInScreen(
 
         // 아이디 입력 필드
         InputField(
-            value = remember { mutableStateOf(emailText) },
+            value = emailText,
             placeholder = "이메일 주소 또는 아이디",
             onValueChange = { emailText = it }
         )
@@ -193,10 +191,14 @@ fun TopBar() {
 }
 
 @Composable
-fun InputField(value: MutableState<String>, placeholder: String, onValueChange: (String) -> Unit) {
+fun InputField(
+    value: String, // String을 받아옵니다.
+    placeholder: String,
+    onValueChange: (String) -> Unit // 상태 변경을 외부에서 처리할 수 있도록 람다로만 전달합니다.
+) {
     TextField(
-        value = value.value,
-        onValueChange = { newText -> value.value = newText; onValueChange(newText) },
+        value = value,
+        onValueChange = onValueChange,
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp),
@@ -214,11 +216,12 @@ fun InputField(value: MutableState<String>, placeholder: String, onValueChange: 
     )
 }
 
+
 @Composable
 fun PasswordField(
     value: String,
     onValueChange: (String) -> Unit,
-    showPassword: Boolean,
+    showPassword: Boolean = false,
     onVisibilityChange: () -> Unit
 ) {
     TextField(
