@@ -41,22 +41,39 @@ fun HomeTopBar() {
 }
 
 @Composable
-fun BannerView() {
+fun PageNumber(
+    currentPage: Int,
+    totalPages: Int,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = "$currentPage / $totalPages",
+        color = Color.White,
+        fontSize = 16.sp,
+        modifier = modifier
+            .background(Color.Black.copy(alpha = 0.5f))
+            .padding(4.dp)
+    )
+}
+
+@Composable
+fun BannerView(bannerImages: List<Int>) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 16.dp)
     ) {
-        BannerViewPager()
+        BannerViewPager(bannerImages)
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BannerViewPager(
+    bannerImages: List<Int>,
     modifier: Modifier = Modifier
 ) {
-    val pagerState = rememberPagerState { 4 }
+    val pagerState = rememberPagerState { bannerImages.size }
 
     Box(modifier = modifier) {
         HorizontalPager(
@@ -69,7 +86,7 @@ fun BannerViewPager(
                     .height(450.dp)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.banner_image),
+                    painter = painterResource(id = bannerImages[page]),
                     contentDescription = "Banner Image $page",
                     modifier = Modifier
                         .fillMaxWidth()
@@ -91,25 +108,9 @@ fun BannerViewPager(
 }
 
 @Composable
-fun PageNumber(
-    currentPage: Int,
-    totalPages: Int,
-    modifier: Modifier = Modifier
-) {
-    Text(
-        text = "$currentPage / $totalPages",
-        color = Color.White,
-        fontSize = 16.sp,
-        modifier = modifier
-            .background(Color.Black.copy(alpha = 0.5f))
-            .padding(4.dp)
-    )
-}
-
-@Composable
-fun EditorPicksList() {
+fun EditorPicksList(editorPicks: List<String>) {
     LazyRow {
-        items(6) {
+        items(editorPicks.size) { index ->
             Box(
                 modifier = Modifier
                     .padding(8.dp)
@@ -118,7 +119,7 @@ fun EditorPicksList() {
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.editor_image),
-                    contentDescription = "Editor Pick",
+                    contentDescription = "Editor Pick ${editorPicks[index]}",
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight(),
@@ -130,12 +131,12 @@ fun EditorPicksList() {
 }
 
 @Composable
-fun Top20List() {
+fun Top20List(top20Items: List<String>) {
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(20) { index ->
+        items(top20Items.size) { index ->
             Box(
                 modifier = Modifier
                     .width(180.dp)
@@ -144,7 +145,7 @@ fun Top20List() {
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.top20),
-                    contentDescription = "Top $index",
+                    contentDescription = top20Items[index],
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight(),

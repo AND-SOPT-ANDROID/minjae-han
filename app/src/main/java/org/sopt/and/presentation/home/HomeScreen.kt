@@ -6,6 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -19,10 +21,11 @@ import org.sopt.and.presentation.home.component.Top20List
 
 @Composable
 fun HomeScreen(
-    homeViewModel: HomeViewModel = viewModel(),
-    modifier: Modifier = Modifier
+    homeViewModel: HomeViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    val uiState by homeViewModel.uiState.collectAsState()
+
 
     BackHandler {
         (context as? Activity)?.finish()
@@ -39,17 +42,17 @@ fun HomeScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             item {
-                BannerView()
+                BannerView(uiState.bannerImages)
             }
 
             item {
                 SectionTitle("믿고 보는 웨이브 에디터 추천작")
-                EditorPicksList()
+                EditorPicksList(uiState.editorPicks)
             }
 
             item {
                 SectionTitle("오늘의 TOP 20")
-                Top20List()
+                Top20List(uiState.top20Items)
             }
         }
     }
