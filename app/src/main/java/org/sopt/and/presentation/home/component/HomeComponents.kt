@@ -6,12 +6,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -55,43 +58,52 @@ fun BannerViewPager(
 ) {
     val pagerState = rememberPagerState { 4 }
 
-    HorizontalPager(
-        state = pagerState,
-        modifier = Modifier.fillMaxWidth()
-    ) { page ->
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .height(450.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.banner_image),
-                contentDescription = "Banner Image $page",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .padding(10.dp),
-                contentScale = ContentScale.Crop
-            )
-
+    Box(modifier = modifier) {
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxWidth()
+        ) { page ->
             Box(
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .height(450.dp)
             ) {
-                Text(
-                    text = "${page + 1}/4",
-                    color = Color.White,
+                Image(
+                    painter = painterResource(id = R.drawable.banner_image),
+                    contentDescription = "Banner Image $page",
                     modifier = Modifier
-                        .background(
-                            color = Color.Black.copy(alpha = 0.6f),
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .padding(10.dp),
+                    contentScale = ContentScale.Crop
                 )
             }
         }
+
+        PageNumber(
+            currentPage = pagerState.currentPage + 1,
+            totalPages = pagerState.pageCount,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        )
     }
+}
+
+@Composable
+fun PageNumber(
+    currentPage: Int,
+    totalPages: Int,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = "$currentPage / $totalPages",
+        color = Color.White,
+        fontSize = 16.sp,
+        modifier = modifier
+            .background(Color.Black.copy(alpha = 0.5f))
+            .padding(4.dp)
+    )
 }
 
 @Composable
