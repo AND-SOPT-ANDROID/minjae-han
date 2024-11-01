@@ -97,7 +97,7 @@ fun BannerViewPager(
 @Composable
 fun EditorPicksList() {
     LazyRow {
-        items(5) {
+        items(6) {
             Box(
                 modifier = Modifier
                     .padding(8.dp)
@@ -105,7 +105,7 @@ fun EditorPicksList() {
                     .background(Color.LightGray)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.banner_image),
+                    painter = painterResource(id = R.drawable.editor_image),
                     contentDescription = "Editor Pick",
                     modifier = Modifier
                         .fillMaxWidth()
@@ -130,10 +130,13 @@ fun Top20List() {
                     .height(250.dp)
                     .background(Color.DarkGray)
             ) {
-                Text(
-                    text = "Top $index",
-                    modifier = Modifier.align(Alignment.Center),
-                    color = Color.White
+                Image(
+                    painter = painterResource(id = R.drawable.top20),
+                    contentDescription = "Top $index",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
+                    contentScale = ContentScale.Crop
                 )
             }
         }
