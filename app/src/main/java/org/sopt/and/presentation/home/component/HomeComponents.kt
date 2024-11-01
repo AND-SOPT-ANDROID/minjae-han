@@ -104,10 +104,13 @@ fun EditorPicksList() {
                     .size(150.dp, 200.dp)
                     .background(Color.LightGray)
             ) {
-                Text(
-                    text = "추천작 $it",
-                    modifier = Modifier.align(Alignment.Center),
-                    color = Color.Black
+                Image(
+                    painter = painterResource(id = R.drawable.banner_image),
+                    contentDescription = "Editor Pick",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
+                    contentScale = ContentScale.Crop
                 )
             }
         }
