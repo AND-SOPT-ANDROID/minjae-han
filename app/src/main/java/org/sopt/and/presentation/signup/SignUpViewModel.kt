@@ -27,10 +27,10 @@ class SignUpViewModel : ViewModel() {
     val uiState: StateFlow<SignUpUiState> = _uiState.asStateFlow()
 
     fun onEmailChange(email: String) {
-        _uiState.update { it.copy(
+        _uiState.update {
             email = email,
             errorMessage = null
-        ) }
+        }
     }
 
     fun onPasswordChange(password: String) {
