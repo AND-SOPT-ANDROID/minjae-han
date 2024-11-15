@@ -3,11 +3,19 @@ package org.sopt.and.presentation.home.component
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,76 +46,89 @@ fun HomeTopBar() {
 }
 
 @Composable
-fun BannerView() {
+fun PageNumber(
+    currentPage: Int,
+    totalPages: Int,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = "$currentPage / $totalPages",
+        color = Color.White,
+        fontSize = 16.sp,
+        modifier = modifier
+            .background(Color.Black.copy(alpha = 0.5f))
+            .padding(4.dp)
+    )
+}
+
+@Composable
+fun BannerView(bannerImages: List<Int>) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 16.dp)
     ) {
-        BannerViewPager()
+        BannerViewPager(bannerImages)
     }
 }
 
+//TODO: List 변경
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BannerViewPager(
+    bannerImages: List<Int>,
     modifier: Modifier = Modifier
 ) {
-    val pagerState = rememberPagerState { 4 }
+    val pagerState = rememberPagerState { bannerImages.size }
 
-    HorizontalPager(
-        state = pagerState,
-        modifier = Modifier.fillMaxWidth()
-    ) { page ->
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .height(450.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.banner_image),
-                contentDescription = "Banner Image $page",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .padding(10.dp),
-                contentScale = ContentScale.Crop
-            )
-
+    Box(modifier = modifier) {
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxWidth()
+        ) { page ->
             Box(
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .height(450.dp)
             ) {
-                Text(
-                    text = "${page + 1}/4",
-                    color = Color.White,
+                Image(
+                    painter = painterResource(id = bannerImages[page]),
+                    contentDescription = "Banner Image $page",
                     modifier = Modifier
-                        .background(
-                            color = Color.Black.copy(alpha = 0.6f),
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                        .fillMaxSize()
+                        .padding(10.dp),
+                    contentScale = ContentScale.Crop
                 )
             }
         }
+
+        PageNumber(
+            currentPage = pagerState.currentPage + 1,
+            totalPages = pagerState.pageCount,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        )
     }
 }
 
 @Composable
-fun EditorPicksList() {
+fun EditorPicksList(editorPicks: List<String>) {
     LazyRow {
-        items(5) {
+        items(editorPicks.size) { index ->
             Box(
                 modifier = Modifier
                     .padding(8.dp)
                     .size(150.dp, 200.dp)
                     .background(Color.LightGray)
             ) {
-                Text(
-                    text = "추천작 $it",
-                    modifier = Modifier.align(Alignment.Center),
-                    color = Color.Black
+                Image(
+                    painter = painterResource(id = R.drawable.editor_image),
+                    contentDescription = "Editor Pick ${editorPicks[index]}",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
+                    contentScale = ContentScale.Crop
                 )
             }
         }
@@ -115,22 +136,25 @@ fun EditorPicksList() {
 }
 
 @Composable
-fun Top20List() {
+fun Top20List(top20Items: List<String>) {
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(20) { index ->
+        items(top20Items.size) { index ->
             Box(
                 modifier = Modifier
                     .width(180.dp)
                     .height(250.dp)
                     .background(Color.DarkGray)
             ) {
-                Text(
-                    text = "Top $index",
-                    modifier = Modifier.align(Alignment.Center),
-                    color = Color.White
+                Image(
+                    painter = painterResource(id = R.drawable.top20),
+                    contentDescription = top20Items[index],
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
+                    contentScale = ContentScale.Crop
                 )
             }
         }

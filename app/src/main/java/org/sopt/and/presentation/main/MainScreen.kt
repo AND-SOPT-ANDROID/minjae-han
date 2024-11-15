@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import org.sopt.and.presentation.navigation.BottomNavigationBar
 import org.sopt.and.presentation.navigation.NavGraph
@@ -40,4 +41,11 @@ fun MainScreen() {
             modifier = Modifier.padding(innerPadding)
         )
     }
+}
+
+@Preview
+@Composable
+private fun MainScreenPreview() {
+    MainScreen()
+
 }
