@@ -13,7 +13,7 @@ import org.sopt.and.data.ServicePool
 import org.sopt.and.data.local.AuthLocalDataSource
 
 class MyPageViewModel(
-    private val authDataStore: AuthLocalDataSource
+    private val authLocalDataSource: AuthLocalDataSource
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(MyPageUiState())
     val uiState: StateFlow<MyPageUiState> = _uiState.asStateFlow()
@@ -32,44 +32,79 @@ class MyPageViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                authDataStore.getToken().collectLatest { token ->
+                authLocalDataSource.getToken().collect { token ->
                     if (token != null) {
-                        val response = ServicePool.authService.getMyHobby(token)
-                        when {
-                            response.isSuccessful && response.body()?.result != null -> {
-                                _uiState.update {
-                                    it.copy(hobby = response.body()?.result?.hobby ?: "")
+                        try {
+                            val response = ServicePool.authService.getMyHobby(token)
+                            when {
+                                response.isSuccessful && response.body()?.result != null -> {
+                                    _uiState.update {
+                                        it.copy(
+                                            hobby = response.body()?.result?.hobby ?: "",
+                                            isLoading = false
+                                        )
+                                    }
+                                }
+                                response.code() == 401 -> {
+                                    _uiState.update {
+                                        it.copy(
+                                            errorMessage = "토큰이 없습니다",
+                                            isLoading = false
+                                        )
+                                    }
+                                }
+                                response.code() == 403 -> {
+                                    _uiState.update {
+                                        it.copy(
+                                            errorMessage = "유효하지 않은 토큰입니다",
+                                            isLoading = false
+                                        )
+                                    }
+                                }
+                                else -> {
+                                    _uiState.update {
+                                        it.copy(
+                                            errorMessage = "취미 조회에 실패했습니다",
+                                            isLoading = false
+                                        )
+                                    }
                                 }
                             }
-                            response.code() == 401 -> {
-                                _uiState.update { it.copy(errorMessage = "토큰이 없습니다") }
-                            }
-                            response.code() == 403 -> {
-                                _uiState.update { it.copy(errorMessage = "유효하지 않은 토큰입니다") }
-                            }
-                            else -> {
-                                _uiState.update { it.copy(errorMessage = "취미 조회에 실패했습니다") }
+                        } catch (e: Exception) {
+                            _uiState.update {
+                                it.copy(
+                                    errorMessage = "네트워크 오류가 발생했습니다",
+                                    isLoading = false
+                                )
                             }
                         }
                     } else {
-                        _uiState.update { it.copy(errorMessage = "로그인이 필요합니다") }
+                        _uiState.update {
+                            it.copy(
+                                errorMessage = "로그인이 필요합니다",
+                                isLoading = false
+                            )
+                        }
                     }
                 }
             } catch (e: Exception) {
-                _uiState.update { it.copy(errorMessage = "네트워크 오류가 발생했습니다") }
-            } finally {
-                _uiState.update { it.copy(isLoading = false) }
+                _uiState.update {
+                    it.copy(
+                        errorMessage = "토큰 조회에 실패했습니다",
+                        isLoading = false
+                    )
+                }
             }
         }
     }
 
     companion object {
         fun provideFactory(
-            authDataStore: AuthLocalDataSource
+            authLocalDataSource: AuthLocalDataSource
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return MyPageViewModel(authDataStore) as T
+                return MyPageViewModel(authLocalDataSource) as T
             }
         }
     }
