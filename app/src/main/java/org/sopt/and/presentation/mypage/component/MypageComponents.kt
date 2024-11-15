@@ -2,12 +2,22 @@ package org.sopt.and.presentation.mypage.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Warning
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,7 +29,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun MyPageTopBar(email: String) {
+fun MyPageTopBar(
+    hobby: String,
+    isLoading: Boolean = false
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -30,7 +43,6 @@ fun MyPageTopBar(email: String) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(
-            modifier = Modifier,
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -41,15 +53,29 @@ fun MyPageTopBar(email: String) {
             )
             Spacer(modifier = Modifier.width(10.dp))
 
-            Text(
-                text = email,
-                fontSize = 15.sp,
-                color = Color.White,
-                fontWeight = FontWeight.Bold
-            )
+            Column {
+                Text(
+                    text = "내 취미",
+                    fontSize = 15.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
+                } else {
+                    Text(
+                        text = hobby,
+                        fontSize = 13.sp,
+                        color = Color.White
+                    )
+                }
+            }
         }
+
         Row(
-            modifier = Modifier,
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
