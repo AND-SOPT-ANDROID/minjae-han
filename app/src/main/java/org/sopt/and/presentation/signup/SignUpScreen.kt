@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -34,17 +35,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import org.sopt.and.domain.User
-import org.sopt.and.presentation.component.EmailInputField
 import org.sopt.and.presentation.component.PasswordInputField
 import org.sopt.and.presentation.component.SignBottomBox
+import org.sopt.and.presentation.component.TextInputField
 
 @Composable
 fun SignUpScreen(
     signUpViewModel: SignUpViewModel = viewModel(),
     modifier: Modifier = Modifier,
-    navigateToSignIn: (User) -> Unit = {},
-    onNavigateBack: () -> Unit = {}
+    onSignUpSuccess: () -> Unit = {},
+    onBackClick: () -> Unit = {}
 ) {
     val uiState by signUpViewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -53,6 +53,13 @@ fun SignUpScreen(
     LaunchedEffect(uiState.errorMessage) {
         uiState.errorMessage?.let { message ->
             snackbarHostState.showSnackbar(message)
+        }
+    }
+
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            Toast.makeText(context, "회원가입이 완료되었습니다!", Toast.LENGTH_SHORT).show()
+            onSignUpSuccess()
         }
     }
 
@@ -78,7 +85,7 @@ fun SignUpScreen(
                 Icon(
                     modifier = Modifier
                         .size(30.dp)
-                        .clickable { onNavigateBack() },
+                        .clickable { onBackClick() },
                     imageVector = Icons.Default.Close,
                     contentDescription = "닫기",
                     tint = Color.White
@@ -88,25 +95,18 @@ fun SignUpScreen(
             Spacer(modifier = Modifier.height(40.dp))
 
             Text(
-                text = "이메일과 비밀번호 만으로\nWavve를 즐길 수 있어요!",
-                fontSize = 20.sp,
+                text = "아이디와 비밀번호, 취미를 입력하여\nWavve를 즐길 수 있어요!",
+                fontSize = 23.sp,
                 color = Color.White,
             )
 
-            Spacer(modifier = Modifier.height(25.dp))
+            Spacer(modifier = Modifier.height(40.dp))
 
-            EmailInputField(
-                value = uiState.email,
-                onValueChange = { signUpViewModel.onEmailChange(it) },
-                placeholder = "wavve@example.com",
-                isError = uiState.errorMessage?.contains("이메일") == true
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Text(
-                text = "! 로그인, 비밀번호 찾기, 알림에 사용되니 정확한 이메일을\n입력해 주세요.",
-                color = Color.Gray,
+            TextInputField(
+                value = uiState.username,
+                onValueChange = { signUpViewModel.onUsernameChange(it) },
+                placeholder = "username (8자 이하)",
+                isError = uiState.errorMessage?.contains("username") == true
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -115,30 +115,39 @@ fun SignUpScreen(
                 value = uiState.password,
                 onValueChange = { signUpViewModel.onPasswordChange(it) },
                 showPassword = uiState.showPassword,
-                placeholder = "wavve 비밀번호 설정",
+                placeholder = "password (8자 이하)",
                 onVisibilityChange = { signUpViewModel.onPasswordVisibilityChange() },
-                isError = uiState.errorMessage?.contains("비밀번호") == true
+                isError = uiState.errorMessage?.contains("password") == true
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            TextInputField(
+                value = uiState.hobby,
+                onValueChange = { signUpViewModel.onHobbyChange(it) },
+                placeholder = "hobby (8자 이하)",
+                isError = uiState.errorMessage?.contains("hobby") == true
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = "! 비밀번호는 8-20자 이내, 영문 대소문자, 숫자, 특수문자 중\n3가지 이상 혼용하여 입력해 주세요.",
+                text = "! 모든 입력값은 8자 이하여야 합니다",
                 color = Color.Gray,
             )
-
-            Spacer(modifier = Modifier.height(10.dp))
 
             SignBottomBox()
         }
 
+        if (uiState.isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                color = Color.White
+            )
+        }
+
         Button(
-            onClick = {
-                if (signUpViewModel.onSignUpClick()) {
-                    Toast.makeText(context, "회원가입이 완료되었습니다!", Toast.LENGTH_SHORT).show()
-                    navigateToSignIn(signUpViewModel.getUser())
-                }
-            },
+            onClick = { signUpViewModel.signUp() },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(60.dp),
@@ -147,7 +156,10 @@ fun SignUpScreen(
                 contentColor = Color.White
             ),
             shape = RectangleShape,
-            enabled = uiState.email.isNotBlank() && uiState.password.isNotBlank()
+            enabled = !uiState.isLoading &&
+                    uiState.username.isNotBlank() &&
+                    uiState.password.isNotBlank() &&
+                    uiState.hobby.isNotBlank()
         ) {
             Text("Wavve 회원가입", fontSize = 17.sp)
         }

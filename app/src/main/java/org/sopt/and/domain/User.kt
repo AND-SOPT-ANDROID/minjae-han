@@ -1,6 +1,7 @@
 package org.sopt.and.domain
 
 data class User(
-    var email: String = "",
-    var password: String = ""
+    val username: String = "",
+    val password: String = "",
+    val hobby: String = ""     // hobby 필드 추가
 )

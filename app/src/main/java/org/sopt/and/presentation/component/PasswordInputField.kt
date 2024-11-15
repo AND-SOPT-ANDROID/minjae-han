@@ -20,59 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun EmailInputField(
-    value: String,
-    placeholder: String,
-    onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    isError: Boolean = false,
-    errorMessage: String? = null
-) {
-    val containerColor by animateColorAsState(
-        targetValue = if (isError) Color.DarkGray.copy(red = 0.4f) else Color.DarkGray,
-        label = "containerColor"
-    )
-
-    Column {
-        TextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = modifier
-                .fillMaxWidth()
-                .height(60.dp),
-            placeholder = {
-                Text(
-                    text = placeholder,
-                    color = Color.Gray
-                )
-            },
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = containerColor,
-                unfocusedContainerColor = containerColor,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedIndicatorColor = if (isError) Color.Red.copy(alpha = 0.5f) else Color.Transparent,
-                unfocusedIndicatorColor = if (isError) Color.Red.copy(alpha = 0.5f) else Color.Transparent,
-                errorContainerColor = containerColor,
-                errorIndicatorColor = Color.Red.copy(alpha = 0.5f)
-            ),
-            shape = RoundedCornerShape(5.dp),
-            singleLine = true,
-            isError = isError
-        )
-
-        if (isError && errorMessage != null) {
-            Text(
-                text = errorMessage,
-                color = Color.Red.copy(alpha = 0.8f),
-                fontSize = 12.sp,
-                modifier = Modifier.padding(start = 4.dp, top = 4.dp)
-            )
-        }
-    }
-}
-
-@Composable
 fun PasswordInputField(
     value: String,
     onValueChange: (String) -> Unit,

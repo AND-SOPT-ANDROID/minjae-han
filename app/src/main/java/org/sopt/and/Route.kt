@@ -1,18 +1,22 @@
 package org.sopt.and
 
+import kotlinx.serialization.Serializable
+
+
+@Serializable
 sealed class Route(val route: String) {
+    @Serializable
     data object Home : Route("home")
 
-    data class SignIn(val email: String = "", val password: String = "") :
-        Route("signIn?email={email}&password={password}") {
-        fun createRoute(email: String = "", password: String = "") =
-            "signIn?email=$email&password=$password"
-    }
+    @Serializable
+    data object SignIn : Route("signIn")
 
+    @Serializable
     data object SignUp : Route("signUp")
+
+    @Serializable
     data object Search : Route("search")
 
-    data class MyPage(val email: String) : Route("myPage?email={email}") {
-        fun createRoute(email: String) = "myPage?email=$email"
-    }
+    @Serializable
+    data object MyPage : Route("myPage")
 }

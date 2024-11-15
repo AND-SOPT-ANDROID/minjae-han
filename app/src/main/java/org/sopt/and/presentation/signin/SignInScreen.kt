@@ -2,12 +2,30 @@ package org.sopt.and.presentation.signin
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,35 +36,35 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.launch
-import org.sopt.and.presentation.component.ActionText
-import org.sopt.and.presentation.component.EmailInputField
+import org.sopt.and.data.local.AuthLocalDataSource
 import org.sopt.and.presentation.component.PasswordInputField
 import org.sopt.and.presentation.component.SignBottomBox
+import org.sopt.and.presentation.component.TextInputField
 
 @Composable
 fun SignInScreen(
-    signInViewModel: SignInViewModel = viewModel(),
+    signInViewModel: SignInViewModel = viewModel(
+        factory = SignInViewModel.provideFactory(
+            AuthLocalDataSource.getInstance(LocalContext.current)
+        )
+    ),
     modifier: Modifier = Modifier,
-    email: String = "",
-    password: String = "",
-    navigateToSignUp: () -> Unit = {},
-    navigateToMyPage: (String) -> Unit = {}
+    onLoginSuccess: () -> Unit = {},
+    onSignUpClick: () -> Unit = {}
 ) {
     val uiState by signInViewModel.uiState.collectAsState()
-    val context = LocalContext.current
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-
-    LaunchedEffect(email, password) {
-        if (email.isNotEmpty() && password.isNotEmpty()) {
-            signInViewModel.updateRegisteredUser(email, password)
-        }
-    }
 
     LaunchedEffect(uiState.errorMessage) {
         uiState.errorMessage?.let { message ->
             snackBarHostState.showSnackbar(message)
+        }
+    }
+
+    LaunchedEffect(uiState.token) {
+        uiState.token?.let {
+            onLoginSuccess()
         }
     }
 
@@ -84,11 +102,11 @@ fun SignInScreen(
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            EmailInputField(
-                value = uiState.email,
-                onValueChange = { signInViewModel.onEmailChange(it) },
-                placeholder = "이메일 주소 또는 아이디",
-                isError = uiState.errorMessage?.contains("이메일") == true
+            TextInputField(
+                value = uiState.username,
+                onValueChange = { signInViewModel.onUsernameChange(it) },
+                placeholder = "username",
+                isError = uiState.errorMessage?.contains("username") == true
             )
 
             Spacer(modifier = Modifier.height(5.dp))
@@ -97,7 +115,7 @@ fun SignInScreen(
                 value = uiState.password,
                 onValueChange = { signInViewModel.onPasswordChange(it) },
                 showPassword = uiState.showPassword,
-                placeholder = "비밀번호",
+                placeholder = "password",
                 onVisibilityChange = { signInViewModel.onPasswordVisibilityChange() },
                 isError = uiState.errorMessage?.contains("비밀번호") == true
             )
@@ -105,21 +123,17 @@ fun SignInScreen(
             Spacer(modifier = Modifier.height(30.dp))
 
             Button(
-                onClick = {
-                    scope.launch {
-                        if (signInViewModel.signIn(uiState.email, uiState.password)) {
-                            snackBarHostState.showSnackbar("로그인 성공!")
-                            navigateToMyPage(uiState.email)
-                        }
-                    }
-                },
+                onClick = { signInViewModel.signIn() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Blue,
                     contentColor = Color.White
-                )
+                ),
+                enabled = !uiState.isLoading &&
+                        uiState.username.isNotBlank() &&
+                        uiState.password.isNotBlank()
             ) {
                 Text(text = "로그인", fontSize = 15.sp)
             }
@@ -130,25 +144,37 @@ fun SignInScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                ActionText(
+                Text(
                     text = "아이디 찾기",
-                    nextScreen = { }
+                    color = Color.Gray,
+                    modifier = Modifier.clickable { }
                 )
                 Text(text = "|", color = Color.Gray)
-                ActionText(
+                Text(
                     text = "비밀번호 재설정",
-                    nextScreen = { }
+                    color = Color.Gray,
+                    modifier = Modifier.clickable { }
                 )
                 Text(text = "|", color = Color.Gray)
-                ActionText(
+                Text(
                     text = "회원 가입",
-                    nextScreen = { navigateToSignUp() }
+                    color = Color.Gray,
+                    modifier = Modifier.clickable { onSignUpClick() }
                 )
             }
 
             Spacer(modifier = Modifier.height(55.dp))
 
+            Spacer(modifier = Modifier.height(20.dp))
+
             SignBottomBox()
+        }
+
+        if (uiState.isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                color = Color.White
+            )
         }
     }
 
@@ -157,7 +183,6 @@ fun SignInScreen(
         modifier = Modifier.padding(16.dp)
     )
 }
-
 
 @Preview
 @Composable
