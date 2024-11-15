@@ -10,24 +10,24 @@ import org.sopt.and.Route
 sealed class BottomNavItem(
     val name: String,
     val icon: ImageVector,
-    val route: Any
+    val route: String
 ) {
     data object Home : BottomNavItem(
         name = "홈",
         icon = Icons.Default.Home,
-        route = Route.Home
+        route = Route.Home.route
     )
 
     data object Search : BottomNavItem(
         name = "검색",
         icon = Icons.Default.Search,
-        route = Route.Search
+        route = Route.Search.route
     )
 
     data object MyPage : BottomNavItem(
         name = "MY",
         icon = Icons.Default.Person,
-        route = Route.MyPage("")
+        route = Route.MyPage.route
     )
 
     companion object {
