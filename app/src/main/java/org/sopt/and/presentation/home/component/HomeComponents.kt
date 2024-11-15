@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -71,6 +72,7 @@ fun BannerView(bannerImages: List<Int>) {
     }
 }
 
+//TODO: List 변경
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BannerViewPager(
@@ -93,8 +95,7 @@ fun BannerViewPager(
                     painter = painterResource(id = bannerImages[page]),
                     contentDescription = "Banner Image $page",
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
+                        .fillMaxSize()
                         .padding(10.dp),
                     contentScale = ContentScale.Crop
                 )

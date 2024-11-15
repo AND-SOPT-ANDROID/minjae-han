@@ -28,16 +28,20 @@ class SignUpViewModel : ViewModel() {
 
     fun onEmailChange(email: String) {
         _uiState.update {
-            email = email,
-            errorMessage = null
+            it.copy(
+                email = email,
+                errorMessage = null
+            )
         }
     }
 
     fun onPasswordChange(password: String) {
-        _uiState.update { it.copy(
-            password = password,
-            errorMessage = null
-        ) }
+        _uiState.update {
+            it.copy(
+                password = password,
+                errorMessage = null
+            )
+        }
     }
 
     fun onPasswordVisibilityChange() {
@@ -49,22 +53,30 @@ class SignUpViewModel : ViewModel() {
 
         return when {
             !isEmailValid(currentState.email) -> {
-                _uiState.update { it.copy(
-                    errorMessage = "유효하지 않은 이메일 형식입니다."
-                ) }
+                _uiState.update {
+                    it.copy(
+                        errorMessage = "유효하지 않은 이메일 형식입니다."
+                    )
+                }
                 false
             }
+
             !isPasswordValid(currentState.password) -> {
-                _uiState.update { it.copy(
-                    errorMessage = "비밀번호는 8-20자의 영문 대소문자, 숫자, 특수문자를 포함해야 합니다."
-                ) }
+                _uiState.update {
+                    it.copy(
+                        errorMessage = "비밀번호는 8-20자의 영문 대소문자, 숫자, 특수문자를 포함해야 합니다."
+                    )
+                }
                 false
             }
+
             else -> {
-                _uiState.update { it.copy(
-                    isSignUpSuccess = true,
-                    errorMessage = null
-                ) }
+                _uiState.update {
+                    it.copy(
+                        isSignUpSuccess = true,
+                        errorMessage = null
+                    )
+                }
                 true
             }
         }
@@ -80,6 +92,7 @@ class SignUpViewModel : ViewModel() {
 
     companion object {
         private val emailPattern = Patterns.EMAIL_ADDRESS
-        private val passwordPattern = Pattern.compile("^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#\$%^&*]).{8,20}$")
+        private val passwordPattern =
+            Pattern.compile("^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#\$%^&*]).{8,20}$")
     }
 }
