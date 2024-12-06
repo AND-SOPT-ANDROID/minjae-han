@@ -1,6 +1,5 @@
 package org.sopt.and.presentation.main
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -17,26 +16,21 @@ import org.sopt.and.presentation.navigation.NavGraph
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-    var bottomNaviVisible by remember { mutableStateOf(false) }
-    var userEmail by remember { mutableStateOf("") }
+    var shouldShowBottomBar by remember { mutableStateOf(false) }
 
     Scaffold(
         bottomBar = {
-            if (bottomNaviVisible) {
+            if (shouldShowBottomBar) {
                 BottomNavigationBar(
-                    navController = navController,
-                    userEmail = userEmail
+                    navController = navController
                 )
             }
         }
-    ) { innerPadding: PaddingValues ->
+    ) { innerPadding ->
         NavGraph(
             navController = navController,
-            isLogined = { isLogined ->
-                bottomNaviVisible = isLogined
-            },
-            onEmailUpdated = { email ->
-                userEmail = email
+            isLoggedIn = { loggedIn ->
+                shouldShowBottomBar = loggedIn
             },
             modifier = Modifier.padding(innerPadding)
         )

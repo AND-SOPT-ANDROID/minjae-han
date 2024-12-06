@@ -1,45 +1,51 @@
 package org.sopt.and.presentation.signin
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import org.sopt.and.domain.User
+import kotlinx.coroutines.launch
+import org.sopt.and.data.ServicePool
+import org.sopt.and.data.local.AuthLocalDataSource
+import org.sopt.and.data.model.request.SignInRequest
 
-data class SignInUiState(
-    val email: String = "",
-    val password: String = "",
-    val showPassword: Boolean = false,
-    val registeredUser: User? = null,
-    val errorMessage: String? = null
-)
-
-class SignInViewModel : ViewModel() {
+class SignInViewModel(
+    private val authDataStore: AuthLocalDataSource
+) : ViewModel() {
     private val _uiState = MutableStateFlow(SignInUiState())
     val uiState: StateFlow<SignInUiState> = _uiState.asStateFlow()
 
-    fun updateRegisteredUser(email: String, password: String) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                registeredUser = User(email, password),
-                email = email,
-                password = password
-            )
+    data class SignInUiState(
+        val username: String = "",
+        val password: String = "",
+        val showPassword: Boolean = false,
+        val isLoading: Boolean = false,
+        val errorMessage: String? = null,
+        val token: String? = null
+    )
+
+    private fun validateInput(input: String, fieldName: String): String? {
+        return when {
+            input.isBlank() -> "${fieldName}을 입력해주세요"
+            input.length > 8 -> "${fieldName}은 8자 이하여야 합니다"
+            else -> null
         }
     }
 
-    fun onEmailChange(email: String) {
+    fun onUsernameChange(username: String) {
         _uiState.update { it.copy(
-            email = email,
-            errorMessage = null
+            username = username,
+            errorMessage = validateInput(username, "username")
         ) }
     }
 
     fun onPasswordChange(password: String) {
         _uiState.update { it.copy(
             password = password,
-            errorMessage = null
+            errorMessage = validateInput(password, "password")
         ) }
     }
 
@@ -47,25 +53,55 @@ class SignInViewModel : ViewModel() {
         _uiState.update { it.copy(showPassword = !it.showPassword) }
     }
 
-    fun signIn(email: String, password: String): Boolean {
-        val currentState = _uiState.value
+    fun signIn() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            try {
+                val response = ServicePool.authService.signIn(
+                    SignInRequest(
+                        username = _uiState.value.username,
+                        password = _uiState.value.password
+                    )
+                )
 
-        if (email.isBlank() || password.isBlank()) {
-            _uiState.update { it.copy(errorMessage = "이메일과 비밀번호를 입력해주세요.") }
-            return false
-        }
-
-        return if (currentState.registeredUser != null) {
-            if (email == currentState.registeredUser.email &&
-                password == currentState.registeredUser.password) {
-                true
-            } else {
-                _uiState.update { it.copy(errorMessage = "이메일 또는 비밀번호가 일치하지 않습니다.") }
-                false
+                when {
+                    response.isSuccessful && response.body()?.result != null -> {
+                        response.body()?.result?.token?.let { token ->
+                            authDataStore.saveToken(token)
+                            _uiState.update { it.copy(token = token) }
+                        }
+                    }
+                    response.code() == 400 -> {
+                        val errorMessage = when(response.body()?.code) {
+                            "01" -> "요청이 유효하지 않습니다"
+                            "02" -> "로그인 정보가 올바르지 않습니다"
+                            else -> "로그인에 실패했습니다"
+                        }
+                        _uiState.update { it.copy(errorMessage = errorMessage) }
+                    }
+                    response.code() == 403 -> {
+                        _uiState.update { it.copy(errorMessage = "비밀번호가 틀렸습니다") }
+                    }
+                    else -> {
+                        _uiState.update { it.copy(errorMessage = "로그인에 실패했습니다") }
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(errorMessage = "네트워크 오류가 발생했습니다") }
+            } finally {
+                _uiState.update { it.copy(isLoading = false) }
             }
-        } else {
-            _uiState.update { it.copy(errorMessage = "등록되지 않은 사용자입니다.") }
-            false
+        }
+    }
+
+    companion object {
+        fun provideFactory(
+            authDataStore: AuthLocalDataSource
+        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return SignInViewModel(authDataStore) as T
+            }
         }
     }
 }
