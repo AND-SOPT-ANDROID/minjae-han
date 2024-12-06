@@ -1,4 +1,4 @@
-package org.sopt.and.presentation.signup
+package org.sopt.and.presentation.auth.signup
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.sopt.and.presentation.component.PasswordInputField
 import org.sopt.and.presentation.component.SignBottomBox
@@ -41,12 +42,12 @@ import org.sopt.and.presentation.component.TextInputField
 
 @Composable
 fun SignUpScreen(
-    signUpViewModel: SignUpViewModel = viewModel(),
+    viewModel: SignUpViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
     onSignUpSuccess: () -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
-    val uiState by signUpViewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -104,7 +105,7 @@ fun SignUpScreen(
 
             TextInputField(
                 value = uiState.username,
-                onValueChange = { signUpViewModel.onUsernameChange(it) },
+                onValueChange = { viewModel.onUsernameChange(it) },
                 placeholder = "username (8자 이하)",
                 isError = uiState.errorMessage?.contains("username") == true
             )
@@ -113,10 +114,10 @@ fun SignUpScreen(
 
             PasswordInputField(
                 value = uiState.password,
-                onValueChange = { signUpViewModel.onPasswordChange(it) },
+                onValueChange = { viewModel.onPasswordChange(it) },
                 showPassword = uiState.showPassword,
                 placeholder = "password (8자 이하)",
-                onVisibilityChange = { signUpViewModel.onPasswordVisibilityChange() },
+                onVisibilityChange = { viewModel.onPasswordVisibilityChange() },
                 isError = uiState.errorMessage?.contains("password") == true
             )
 
@@ -124,7 +125,7 @@ fun SignUpScreen(
 
             TextInputField(
                 value = uiState.hobby,
-                onValueChange = { signUpViewModel.onHobbyChange(it) },
+                onValueChange = { viewModel.onHobbyChange(it) },
                 placeholder = "hobby (8자 이하)",
                 isError = uiState.errorMessage?.contains("hobby") == true
             )
@@ -147,7 +148,7 @@ fun SignUpScreen(
         }
 
         Button(
-            onClick = { signUpViewModel.signUp() },
+            onClick = { viewModel.signUp() },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(60.dp),

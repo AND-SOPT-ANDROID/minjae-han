@@ -15,11 +15,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import org.sopt.and.data.local.AuthLocalDataSource
+import androidx.hilt.navigation.compose.hiltViewModel
 import org.sopt.and.presentation.mypage.component.EmptyInfoIcon
 import org.sopt.and.presentation.mypage.component.MyMenuSection
 import org.sopt.and.presentation.mypage.component.MyPageTopBar
@@ -27,14 +25,10 @@ import org.sopt.and.presentation.mypage.component.PurchaseText
 
 @Composable
 fun MyPageScreen(
-    modifier: Modifier = Modifier,
-    myPageViewModel: MyPageViewModel = viewModel(
-        factory = MyPageViewModel.provideFactory(
-            authLocalDataSource = AuthLocalDataSource.getInstance(LocalContext.current)
-        )
-    ),
+    viewModel: MyPageViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier
 ) {
-    val uiState by myPageViewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(uiState.errorMessage) {

@@ -9,8 +9,8 @@ import org.sopt.and.Route
 import org.sopt.and.presentation.home.HomeScreen
 import org.sopt.and.presentation.mypage.MyPageScreen
 import org.sopt.and.presentation.search.SearchScreen
-import org.sopt.and.presentation.signin.SignInScreen
-import org.sopt.and.presentation.signup.SignUpScreen
+import org.sopt.and.presentation.auth.signin.SignInScreen
+import org.sopt.and.presentation.auth.signup.SignUpScreen
 
 @Composable
 fun NavGraph(

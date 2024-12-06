@@ -1,7 +1,8 @@
 [versions]
 accompanistPager = "0.32.0"
-agp = "8.7.0"
-kotlin = "2.0.0"
+agp = "8.7.3"
+kotlin = "1.9.20"
+datastorePreferences = "1.1.1"
 coreKtx = "1.10.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
@@ -15,6 +16,8 @@ navigationCompose = "2.8.3"
 storage = "1.4.2"
 navigationRuntimeKtx = "2.8.3"
 transportationConsumer = "2.3.0"
+compose = "1.5.4"
+composeCompiler = "1.5.4"
 
 okhttp = "4.11.0"
 retrofit = "2.9.0"
@@ -28,11 +31,13 @@ hilt = "2.50"
 hiltNavigationCompose = "1.1.0"
 room = "2.6.1"
 coroutines = "1.7.3"
+ksp = "1.9.20-1.0.14"
 
 [libraries]
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanistPager" }
 accompanist-pager-indicators = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "accompanistPager" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleViewmodelCompose" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 androidx-material = { module = "androidx.compose.material:material", version.ref = "material" }
@@ -78,7 +83,6 @@ kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

@@ -3,10 +3,9 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
-    id("kotlin-kapt")  // kapt 플러그인을 직접 적용
+    alias(libs.plugins.ksp)
 }
 
 val properties = Properties().apply {
@@ -20,6 +19,7 @@ android {
     defaultConfig {
         applicationId = "org.sopt.and"
         minSdk = 28
+        //noinspection OldTargetApi
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -43,10 +43,17 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
+        freeCompilerArgs += listOf(
+            "-P",
+            "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=true"
+        )
     }
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.4"
     }
 }
 
@@ -101,12 +108,12 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
+    ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
     // Room
     implementation(libs.room.runtime)
-    kapt(libs.room.compiler)
+    ksp(libs.room.compiler)
     implementation(libs.room.ktx)
 
     // Coroutines
@@ -115,5 +122,6 @@ dependencies {
 
     // DataStore (already included in newer versions)
     implementation(libs.androidx.datastore.core.android)
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.datastore.preferences.core.jvm)
 }

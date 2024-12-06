@@ -1,4 +1,4 @@
-package org.sopt.and.presentation.signin
+package org.sopt.and.presentation.auth.signin
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,30 +29,24 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import org.sopt.and.data.local.AuthLocalDataSource
+import androidx.hilt.navigation.compose.hiltViewModel
 import org.sopt.and.presentation.component.PasswordInputField
 import org.sopt.and.presentation.component.SignBottomBox
 import org.sopt.and.presentation.component.TextInputField
 
 @Composable
 fun SignInScreen(
-    signInViewModel: SignInViewModel = viewModel(
-        factory = SignInViewModel.provideFactory(
-            AuthLocalDataSource.getInstance(LocalContext.current)
-        )
-    ),
+    viewModel: SignInViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
     onLoginSuccess: () -> Unit = {},
     onSignUpClick: () -> Unit = {}
 ) {
-    val uiState by signInViewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -62,8 +56,8 @@ fun SignInScreen(
         }
     }
 
-    LaunchedEffect(uiState.token) {
-        uiState.token?.let {
+    LaunchedEffect(uiState.isSuccess) {
+        uiState.isSuccess?.let {
             onLoginSuccess()
         }
     }
@@ -104,7 +98,7 @@ fun SignInScreen(
 
             TextInputField(
                 value = uiState.username,
-                onValueChange = signInViewModel::onUsernameChange,
+                onValueChange = { viewModel.onUsernameChange(it) },
                 placeholder = "username",
                 isError = uiState.errorMessage?.contains("username") == true
             )
@@ -113,17 +107,17 @@ fun SignInScreen(
 
             PasswordInputField(
                 value = uiState.password,
-                onValueChange = { signInViewModel.onPasswordChange(it) },
+                onValueChange = { viewModel.onPasswordChange(it) },
                 showPassword = uiState.showPassword,
                 placeholder = "password",
-                onVisibilityChange = { signInViewModel.onPasswordVisibilityChange() },
+                onVisibilityChange = { viewModel.onPasswordVisibilityChange() },
                 isError = uiState.errorMessage?.contains("비밀번호") == true
             )
 
             Spacer(modifier = Modifier.height(30.dp))
 
             Button(
-                onClick = { signInViewModel.signIn() },
+                onClick = { viewModel.signIn() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
@@ -164,9 +158,7 @@ fun SignInScreen(
             }
 
             Spacer(modifier = Modifier.height(55.dp))
-
             Spacer(modifier = Modifier.height(20.dp))
-
             SignBottomBox()
         }
 
