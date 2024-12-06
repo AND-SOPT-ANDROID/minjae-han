@@ -16,11 +16,11 @@ import org.sopt.and.presentation.navigation.NavGraph
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-    var isLoggedIn by remember { mutableStateOf(false) }
+    var shouldShowBottomBar by remember { mutableStateOf(false) }
 
     Scaffold(
         bottomBar = {
-            if (isLoggedIn) {
+            if (shouldShowBottomBar) {
                 BottomNavigationBar(
                     navController = navController
                 )
@@ -30,7 +30,7 @@ fun MainScreen() {
         NavGraph(
             navController = navController,
             isLoggedIn = { loggedIn ->
-                isLoggedIn = loggedIn
+                shouldShowBottomBar = loggedIn
             },
             modifier = Modifier.padding(innerPadding)
         )

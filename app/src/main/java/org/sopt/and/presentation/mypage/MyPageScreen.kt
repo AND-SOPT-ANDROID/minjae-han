@@ -27,12 +27,12 @@ import org.sopt.and.presentation.mypage.component.PurchaseText
 
 @Composable
 fun MyPageScreen(
+    modifier: Modifier = Modifier,
     myPageViewModel: MyPageViewModel = viewModel(
         factory = MyPageViewModel.provideFactory(
             authLocalDataSource = AuthLocalDataSource.getInstance(LocalContext.current)
         )
     ),
-    modifier: Modifier = Modifier
 ) {
     val uiState by myPageViewModel.uiState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }

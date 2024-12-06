@@ -104,7 +104,7 @@ fun SignInScreen(
 
             TextInputField(
                 value = uiState.username,
-                onValueChange = { signInViewModel.onUsernameChange(it) },
+                onValueChange = signInViewModel::onUsernameChange,
                 placeholder = "username",
                 isError = uiState.errorMessage?.contains("username") == true
             )
