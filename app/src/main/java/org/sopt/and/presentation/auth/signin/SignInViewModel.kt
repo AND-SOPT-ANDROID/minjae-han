@@ -28,17 +28,11 @@ class SignInViewModel @Inject constructor(
     )
 
     fun onUsernameChange(username: String) {
-        _uiState.update { it.copy(
-            username = username,
-            errorMessage = null
-        ) }
+        _uiState.update { it.copy(username = username, errorMessage = null) }
     }
 
     fun onPasswordChange(password: String) {
-        _uiState.update { it.copy(
-            password = password,
-            errorMessage = null
-        ) }
+        _uiState.update { it.copy(password = password, errorMessage = null) }
     }
 
     fun onPasswordVisibilityChange() {
@@ -52,7 +46,7 @@ class SignInViewModel @Inject constructor(
                 username = _uiState.value.username,
                 password = _uiState.value.password
             ).onSuccess {
-                _uiState.update { it.copy(isSuccess = true) }
+                _uiState.update { it.copy(isSuccess = true, errorMessage = null) }
             }.onFailure { exception ->
                 _uiState.update { it.copy(errorMessage = exception.message) }
             }

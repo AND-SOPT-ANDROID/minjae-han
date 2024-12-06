@@ -20,23 +20,17 @@ class AuthRepositoryImpl @Inject constructor(
         return try {
             val response = authRemoteDataSource.signIn(SignInRequest(username, password))
             when {
-                response.isSuccessful && response.body()?.result != null -> {
-                    val token = response.body()?.result?.token ?: ""
+                response.isSuccessful && response.body()?.result?.token != null -> {
+                    val token = response.body()?.result?.token!!
                     authLocalDataSource.saveToken(token)
                     Result.success(Auth(token))
                 }
-                response.code() == 400 -> {
-                    Result.failure(Exception("Invalid credentials"))
-                }
-                response.code() == 403 -> {
-                    Result.failure(Exception("Wrong password"))
-                }
-                else -> {
-                    Result.failure(Exception("Login failed"))
-                }
+                response.code() == 400 -> Result.failure(Exception("아이디 또는 비밀번호를 확인해주세요"))
+                response.code() == 403 -> Result.failure(Exception("비밀번호가 일치하지 않습니다"))
+                else -> Result.failure(Exception("로그인에 실패했습니다"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(Exception("네트워크 오류가 발생했습니다"))
         }
     }
 
@@ -46,25 +40,25 @@ class AuthRepositoryImpl @Inject constructor(
             val response = authRemoteDataSource.signUp(request)
             when {
                 response.isSuccessful -> Result.success(Unit)
-                response.code() == 409 -> Result.failure(Exception("Username already exists"))
-                else -> Result.failure(Exception("Sign up failed"))
+                response.code() == 409 -> Result.failure(Exception("이미 존재하는 아이디입니다"))
+                else -> Result.failure(Exception("회원가입에 실패했습니다"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(Exception("네트워크 오류가 발생했습니다"))
         }
     }
 
     override suspend fun getMyHobby(): Result<String> {
         return try {
-            val token = authLocalDataSource.getToken().first() ?: throw Exception("Token not found")
+            val token = authLocalDataSource.getToken().first() ?: throw Exception("로그인이 필요합니다")
             val response = authRemoteDataSource.getMyHobby(token)
             when {
                 response.isSuccessful && response.body()?.result != null -> {
                     Result.success(response.body()?.result?.hobby ?: "")
                 }
-                response.code() == 401 -> Result.failure(Exception("Token not found"))
-                response.code() == 403 -> Result.failure(Exception("Invalid token"))
-                else -> Result.failure(Exception("Failed to get hobby"))
+                response.code() == 401 -> Result.failure(Exception("로그인이 필요합니다"))
+                response.code() == 403 -> Result.failure(Exception("인증이 만료되었습니다"))
+                else -> Result.failure(Exception("취미 정보 조회에 실패했습니다"))
             }
         } catch (e: Exception) {
             Result.failure(e)

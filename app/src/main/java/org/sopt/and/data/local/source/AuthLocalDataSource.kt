@@ -14,7 +14,9 @@ import javax.inject.Singleton
 class AuthLocalDataSource @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    private val Context.dataStore by preferencesDataStore(name = "auth")
+    companion object {
+        private val Context.dataStore by preferencesDataStore(name = "auth")
+    }
     private val tokenKey = stringPreferencesKey("token")
 
     suspend fun saveToken(token: String) {
