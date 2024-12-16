@@ -3,11 +3,13 @@ package org.sopt.and.presentation.auth.signin
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.sopt.and.domain.error.AuthError
@@ -18,45 +20,47 @@ import javax.inject.Inject
 class SignInViewModel @Inject constructor(
     private val signInUseCase: SignInUseCase
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(SignInUiState())
-    val uiState: StateFlow<SignInUiState> = _uiState.asStateFlow()
+    private val _state = MutableStateFlow(SignInState())
+    val state = _state.asStateFlow()
 
-    private val _loginEvent = MutableSharedFlow<Unit>()
-    val loginEvent = _loginEvent.asSharedFlow()
+    private val _effect = Channel<SignInEffect>()
+    val effect = _effect.receiveAsFlow()
 
-
-    data class SignInUiState(
-        val username: String = "",
-        val password: String = "",
-        val showPassword: Boolean = false,
-        val isLoading: Boolean = false,
-        val errorMessage: String? = null
-    )
-
-    fun onUsernameChange(username: String) {
-        _uiState.update { it.copy(username = username, errorMessage = null) }
+    fun processIntent(intent: SignInIntent) {
+        when (intent) {
+            is SignInIntent.UpdateUsername -> updateUsername(intent.username)
+            is SignInIntent.UpdatePassword -> updatePassword(intent.password)
+            is SignInIntent.TogglePasswordVisibility -> togglePasswordVisibility()
+            is SignInIntent.SignIn -> signIn()
+        }
     }
 
-    fun onPasswordChange(password: String) {
-        _uiState.update { it.copy(password = password, errorMessage = null) }
+    private fun updateUsername(username: String) {
+        _state.update { it.copy(username = username) }
     }
 
-    fun onPasswordVisibilityChange() {
-        _uiState.update { it.copy(showPassword = !it.showPassword) }
+    private fun updatePassword(password: String) {
+        _state.update { it.copy(password = password) }
     }
 
-    fun signIn() {
+    private fun togglePasswordVisibility() {
+        _state.update { it.copy(showPassword = !it.showPassword) }
+    }
+
+    private fun signIn() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _state.update { it.copy(isLoading = true) }
+
             signInUseCase(
-                username = _uiState.value.username,
-                password = _uiState.value.password
+                username = state.value.username,
+                password = state.value.password
             ).onSuccess {
-                _loginEvent.emit(Unit)
+                _effect.send(SignInEffect.NavigateToHome)
             }.onFailure { exception ->
-                _uiState.update { it.copy(errorMessage = (exception as? AuthError)?.message) }
+                _effect.send(SignInEffect.ShowError((exception as? AuthError)?.message ?: "Unknown error"))
             }
-            _uiState.update { it.copy(isLoading = false) }
+
+            _state.update { it.copy(isLoading = false) }
         }
     }
 }

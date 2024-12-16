@@ -47,19 +47,19 @@ fun SignInScreen(
     onLoginSuccess: () -> Unit = {},
     onSignUpClick: () -> Unit = {}
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val state by viewModel.state.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    // Effect handling
     LaunchedEffect(Unit) {
-        viewModel.loginEvent.collect {
-            onLoginSuccess()
-        }
-    }
-
-    LaunchedEffect(uiState.errorMessage) {
-        uiState.errorMessage?.let { message ->
-            snackBarHostState.showSnackbar(message)
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is SignInEffect.ShowError -> {
+                    snackBarHostState.showSnackbar(effect.message)
+                }
+                SignInEffect.NavigateToHome -> onLoginSuccess()
+            }
         }
     }
 
@@ -70,6 +70,7 @@ fun SignInScreen(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
+            // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -97,28 +98,28 @@ fun SignInScreen(
 
             Spacer(modifier = Modifier.height(30.dp))
 
+            // Input fields
             TextInputField(
-                value = uiState.username,
-                onValueChange = { viewModel.onUsernameChange(it) },
-                placeholder = "username",
-                isError = uiState.errorMessage?.contains("username") == true
+                value = state.username,
+                onValueChange = { viewModel.processIntent(SignInIntent.UpdateUsername(it)) },
+                placeholder = "username"
             )
 
             Spacer(modifier = Modifier.height(5.dp))
 
             PasswordInputField(
-                value = uiState.password,
-                onValueChange = { viewModel.onPasswordChange(it) },
-                showPassword = uiState.showPassword,
+                value = state.password,
+                onValueChange = { viewModel.processIntent(SignInIntent.UpdatePassword(it)) },
+                showPassword = state.showPassword,
                 placeholder = "password",
-                onVisibilityChange = { viewModel.onPasswordVisibilityChange() },
-                isError = uiState.errorMessage?.contains("비밀번호") == true
+                onVisibilityChange = { viewModel.processIntent(SignInIntent.TogglePasswordVisibility) }
             )
 
             Spacer(modifier = Modifier.height(30.dp))
 
+            // Login button
             Button(
-                onClick = { viewModel.signIn() },
+                onClick = { viewModel.processIntent(SignInIntent.SignIn) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
@@ -126,16 +127,15 @@ fun SignInScreen(
                     containerColor = Color.Blue,
                     contentColor = Color.White
                 ),
-                enabled = !uiState.isLoading &&
-                        uiState.username.isNotBlank() &&
-                        uiState.password.isNotBlank(),
-                interactionSource = remember { MutableInteractionSource() }  // 이 부분 추가
+                enabled = !state.isLoading &&
+                        state.username.isNotBlank() &&
+                        state.password.isNotBlank()
             ) {
                 Text(text = "로그인", fontSize = 15.sp)
             }
 
+            // Navigation links
             Spacer(modifier = Modifier.height(30.dp))
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -160,11 +160,10 @@ fun SignInScreen(
             }
 
             Spacer(modifier = Modifier.height(55.dp))
-            Spacer(modifier = Modifier.height(20.dp))
             SignBottomBox()
         }
 
-        if (uiState.isLoading) {
+        if (state.isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 color = Color.White

@@ -35,7 +35,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import org.sopt.and.presentation.component.PasswordInputField
 import org.sopt.and.presentation.component.SignBottomBox
 import org.sopt.and.presentation.component.TextInputField
@@ -47,20 +46,22 @@ fun SignUpScreen(
     onSignUpSuccess: () -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val state by viewModel.state.collectAsState()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(uiState.errorMessage) {
-        uiState.errorMessage?.let { message ->
-            snackbarHostState.showSnackbar(message)
-        }
-    }
-
-    LaunchedEffect(uiState.isSuccess) {
-        if (uiState.isSuccess) {
-            Toast.makeText(context, "회원가입이 완료되었습니다!", Toast.LENGTH_SHORT).show()
-            onSignUpSuccess()
+    // Effect handling
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is SignUpEffect.ShowError -> {
+                    snackbarHostState.showSnackbar(effect.message)
+                }
+                SignUpEffect.NavigateToSignIn -> onSignUpSuccess()
+                SignUpEffect.ShowSignUpSuccess -> {
+                    Toast.makeText(context, "회원가입이 완료되었습니다!", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
@@ -71,6 +72,7 @@ fun SignUpScreen(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
+            // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -103,31 +105,31 @@ fun SignUpScreen(
 
             Spacer(modifier = Modifier.height(40.dp))
 
+            // Input fields
             TextInputField(
-                value = uiState.username,
-                onValueChange = { viewModel.onUsernameChange(it) },
+                value = state.username,
+                onValueChange = { viewModel.processIntent(SignUpIntent.UpdateUsername(it)) },
                 placeholder = "username (8자 이하)",
-                isError = uiState.errorMessage?.contains("username") == true
+                maxLength = 8
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
             PasswordInputField(
-                value = uiState.password,
-                onValueChange = { viewModel.onPasswordChange(it) },
-                showPassword = uiState.showPassword,
+                value = state.password,
+                onValueChange = { viewModel.processIntent(SignUpIntent.UpdatePassword(it)) },
+                showPassword = state.showPassword,
                 placeholder = "password (8자 이하)",
-                onVisibilityChange = { viewModel.onPasswordVisibilityChange() },
-                isError = uiState.errorMessage?.contains("password") == true
+                onVisibilityChange = { viewModel.processIntent(SignUpIntent.TogglePasswordVisibility) }
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
             TextInputField(
-                value = uiState.hobby,
-                onValueChange = { viewModel.onHobbyChange(it) },
+                value = state.hobby,
+                onValueChange = { viewModel.processIntent(SignUpIntent.UpdateHobby(it)) },
                 placeholder = "hobby (8자 이하)",
-                isError = uiState.errorMessage?.contains("hobby") == true
+                maxLength = 8
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -140,7 +142,7 @@ fun SignUpScreen(
             SignBottomBox()
         }
 
-        if (uiState.isLoading) {
+        if (state.isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 color = Color.White
@@ -148,7 +150,7 @@ fun SignUpScreen(
         }
 
         Button(
-            onClick = { viewModel.signUp() },
+            onClick = { viewModel.processIntent(SignUpIntent.SignUp) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(60.dp),
@@ -157,10 +159,10 @@ fun SignUpScreen(
                 contentColor = Color.White
             ),
             shape = RectangleShape,
-            enabled = !uiState.isLoading &&
-                    uiState.username.isNotBlank() &&
-                    uiState.password.isNotBlank() &&
-                    uiState.hobby.isNotBlank()
+            enabled = !state.isLoading &&
+                    state.username.isNotBlank() &&
+                    state.password.isNotBlank() &&
+                    state.hobby.isNotBlank()
         ) {
             Text("Wavve 회원가입", fontSize = 17.sp)
         }
