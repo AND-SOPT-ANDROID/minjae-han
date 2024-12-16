@@ -1,4 +1,3 @@
-// data/ServicePool.kt
 package org.sopt.and.data
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -7,7 +6,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.sopt.and.BuildConfig
-import org.sopt.and.data.service.AuthService
+import org.sopt.and.data.remote.api.AuthService
 import retrofit2.Retrofit
 
 object ServicePool {
