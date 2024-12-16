@@ -4,22 +4,19 @@ import org.sopt.and.data.remote.dto.request.SignUpRequest
 import org.sopt.and.data.remote.dto.response.SignInResponse
 import org.sopt.and.domain.entity.Auth
 import org.sopt.and.domain.entity.User
-import javax.inject.Inject
 
-class AuthMapper @Inject constructor() {
-    fun toSignUpRequest(user: User) = SignUpRequest(
-        username = user.username,
-        password = user.password,
-        hobby = user.hobby
-    )
+fun User.toSignUpRequest() = SignUpRequest(
+    username = username,
+    password = password,
+    hobby = hobby
+)
 
-    fun toUser(signUpRequest: SignUpRequest) = User(
-        username = signUpRequest.username,
-        password = signUpRequest.password,
-        hobby = signUpRequest.hobby
-    )
+fun SignUpRequest.toUser() = User(
+    username = username,
+    password = password,
+    hobby = hobby
+)
 
-    fun toAuth(response: SignInResponse) = Auth(
-        token = response.token
-    )
-}
+fun SignInResponse.toAuth() = Auth(
+    token = token
+)

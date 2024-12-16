@@ -3,6 +3,7 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
+        maven("https://raw.githubusercontent.com/google/ksp/main/maven-repository")
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
     resolutionStrategy {
@@ -23,4 +24,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "minjae-han"
 include(":app")
- 

@@ -8,6 +8,6 @@ interface AuthRepository {
     suspend fun signUp(user: User): Result<Unit>
     suspend fun getMyHobby(): Result<String>
     suspend fun saveToken(token: String)
-    suspend fun getToken(): String?
+    suspend fun getToken(): Result<String>
     suspend fun clearToken()
 }
