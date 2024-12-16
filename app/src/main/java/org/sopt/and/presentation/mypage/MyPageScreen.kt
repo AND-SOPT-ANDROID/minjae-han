@@ -28,12 +28,26 @@ fun MyPageScreen(
     viewModel: MyPageViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val state by viewModel.state.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(uiState.errorMessage) {
-        uiState.errorMessage?.let { message ->
-            snackBarHostState.showSnackbar(message)
+    // Effect handling
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is MyPageEffect.ShowError -> {
+                    snackBarHostState.showSnackbar(effect.message)
+                }
+                MyPageEffect.NavigateToPurchase -> {
+                    // Handle navigation to purchase
+                }
+                MyPageEffect.NavigateToNotifications -> {
+                    // Handle navigation to notifications
+                }
+                MyPageEffect.NavigateToSettings -> {
+                    // Handle navigation to settings
+                }
+            }
         }
     }
 
@@ -43,22 +57,22 @@ fun MyPageScreen(
             .background(Color.Black)
     ) {
         MyPageTopBar(
-            hobby = uiState.hobby,
-            isLoading = uiState.isLoading
+            hobby = state.hobby,
+            isLoading = state.isLoading,
         )
 
         Spacer(modifier = Modifier.height(1.dp))
 
         PurchaseText(
             title = "첫 결재 시 첫 달 100원!",
-            onClick = { }
+            onClick = { viewModel.processIntent(MyPageIntent.OnPurchaseClick) }
         )
 
         Spacer(modifier = Modifier.height(1.dp))
 
         PurchaseText(
             title = "현재 보유하신 이용권이 없습니다.",
-            onClick = { }
+            onClick = { viewModel.processIntent(MyPageIntent.OnPurchaseClick) }
         )
 
         MyMenuSection(text = "전체 시청내역")
@@ -78,10 +92,4 @@ fun MyPageScreen(
         hostState = snackBarHostState,
         modifier = Modifier.padding(16.dp)
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun MyPageScreenPreview() {
-    MyPageScreen()
 }

@@ -3,9 +3,11 @@ package org.sopt.and.presentation.mypage
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.sopt.and.domain.usecase.auth.GetMyHobbyUseCase
@@ -15,30 +17,44 @@ import javax.inject.Inject
 class MyPageViewModel @Inject constructor(
     private val getMyHobbyUseCase: GetMyHobbyUseCase
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(MyPageUiState())
-    val uiState: StateFlow<MyPageUiState> = _uiState.asStateFlow()
+    private val _state = MutableStateFlow(MyPageState())
+    val state = _state.asStateFlow()
 
-    data class MyPageUiState(
-        val hobby: String = "",
-        val isLoading: Boolean = false,
-        val errorMessage: String? = null
-    )
+    private val _effect = Channel<MyPageEffect>()
+    val effect = _effect.receiveAsFlow()
 
     init {
-        fetchMyHobby()
+        processIntent(MyPageIntent.LoadMyHobby)
+    }
+
+    fun processIntent(intent: MyPageIntent) {
+        when (intent) {
+            MyPageIntent.LoadMyHobby -> fetchMyHobby()
+            MyPageIntent.RefreshData -> fetchMyHobby()
+            MyPageIntent.OnPurchaseClick -> handlePurchaseClick()
+        }
     }
 
     private fun fetchMyHobby() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _state.update { it.copy(isLoading = true) }
+
             getMyHobbyUseCase()
                 .onSuccess { hobby ->
-                    _uiState.update { it.copy(hobby = hobby) }
+                    _state.update { it.copy(hobby = hobby) }
                 }
                 .onFailure { exception ->
-                    _uiState.update { it.copy(errorMessage = exception.message) }
+                    _effect.send(MyPageEffect.ShowError(exception.message ?: "Unknown error"))
                 }
-            _uiState.update { it.copy(isLoading = false) }
+
+            _state.update { it.copy(isLoading = false) }
         }
     }
+
+    private fun handlePurchaseClick() {
+        viewModelScope.launch {
+            _effect.send(MyPageEffect.NavigateToPurchase)
+        }
+    }
+
 }
