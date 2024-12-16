@@ -1,44 +1,60 @@
 package org.sopt.and.presentation.home
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import org.sopt.and.R
+import javax.inject.Inject
 
-data class HomeUiState(
-    val bannerImages: List<Int> = listOf(),
-    val editorPicks: List<String> = listOf(),
-    val top20Items: List<String> = listOf()
-)
+@HiltViewModel
+class HomeViewModel @Inject constructor() : ViewModel() {
+    private val _state = MutableStateFlow(HomeState())
+    val state = _state.asStateFlow()
 
-class HomeViewModel : ViewModel() {
-    private val _uiState = MutableStateFlow(HomeUiState())
-    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+    private val _effect = Channel<HomeEffect>()
+    val effect = _effect.receiveAsFlow()
 
     init {
-        loadBannerImages()
-        loadEditorPicks()
-        loadTop20Items()
+        processIntent(HomeIntent.LoadInitialData)
     }
 
-    private fun loadBannerImages() {
-        val images = listOf(
-            R.drawable.banner_image,
-            R.drawable.banner_image,
-            R.drawable.banner_image,
-            R.drawable.banner_image
-        )
-        _uiState.value = _uiState.value.copy(bannerImages = images)
+    fun processIntent(intent: HomeIntent) {
+        when (intent) {
+            HomeIntent.LoadInitialData -> loadInitialData()
+            HomeIntent.RefreshContent -> refreshContent()
+        }
     }
 
-    private fun loadEditorPicks() {
-        val picks = List(5) { "추천작 $it" }
-        _uiState.value = _uiState.value.copy(editorPicks = picks)
+    private fun loadInitialData() {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+
+            val images = listOf(
+                R.drawable.banner_image,
+                R.drawable.banner_image,
+                R.drawable.banner_image,
+                R.drawable.banner_image
+            )
+            val picks = List(5) { "추천작 $it" }
+            val items = List(20) { "Top $it" }
+
+            _state.update { it.copy(
+                bannerImages = images,
+                editorPicks = picks,
+                top20Items = items,
+                isLoading = false
+            ) }
+        }
     }
 
-    private fun loadTop20Items() {
-        val items = List(20) { "Top $it" }
-        _uiState.value = _uiState.value.copy(top20Items = items)
+    private fun refreshContent() {
+        loadInitialData()
     }
 }
